@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { uploadToTelegram, sendLog } from '@/lib/telegram';
+import { uploadToHuggingFace, isHuggingFaceConfigured } from '@/lib/huggingface';
 import { saveImage, generateId, rateLimit } from '@/lib/db';
 
 export async function POST(req: NextRequest) {
@@ -43,19 +44,62 @@ export async function POST(req: NextRequest) {
             }, { status: 400 });
         }
 
-        // 1. Upload to Telegram
-        let mediaType: 'photo' | 'animation' | 'video' = 'photo';
-        if (file.type.startsWith('video/')) mediaType = 'video';
-        if (file.type === 'image/gif') mediaType = 'animation';
-
-        const telegramResult = await uploadToTelegram(file, 'upload', '📦 <b>Uploaded in web</b>', mediaType);
-
-        // 2. Generate ID
+        // 2. Generate ID first
         const id = customId ? customId.toLowerCase().replace(/[^a-z0-9-]/g, '-') : generateId();
 
-        const record = {
+        // Determine storage based on file size
+        const LARGE_FILE_THRESHOLD = 50 * 1024 * 1024; // 50MB
+        const isLargeFile = file.size > LARGE_FILE_THRESHOLD;
+        const useHFForLargeFiles = isHuggingFaceConfigured() && process.env.USE_HF_FOR_LARGE_FILES === 'true';
+
+        // 1. Upload to storage (HF Hub for large files if configured, else Telegram)
+        let storageResult: { file_id: string; file_url?: string };
+        let storageType: 'telegram' | 'huggingface' = 'telegram';
+
+        if (useHFForLargeFiles && isLargeFile) {
+            // Use HF Hub for large files (>50MB)
+            try {
+                const fileName = customId || `upload-${id}`;
+                const hfResult = await uploadToHuggingFace(file, fileName, id);
+                storageResult = {
+                    file_id: hfResult.file_id,
+                    file_url: hfResult.file_url
+                };
+                storageType = 'huggingface';
+                
+                // Also forward to Telegram chat (for backup/notification)
+                try {
+                    let mediaType: 'photo' | 'animation' | 'video' = 'photo';
+                    if (file.type.startsWith('video/')) mediaType = 'video';
+                    if (file.type === 'image/gif') mediaType = 'animation';
+                    await uploadToTelegram(file, fileName, `📦 <b>Uploaded in web (HF Hub)</b>\n🔗 <b>HF URL:</b> ${hfResult.file_url}`, mediaType);
+                } catch (tgError) {
+                    console.error('Failed to forward HF upload to Telegram chat:', tgError);
+                    // Don't fail the upload if Telegram forwarding fails
+                }
+            } catch (hfError: any) {
+                console.error('HF upload failed, falling back to Telegram:', hfError);
+                // Fallback to Telegram
+                let mediaType: 'photo' | 'animation' | 'video' = 'photo';
+                if (file.type.startsWith('video/')) mediaType = 'video';
+                if (file.type === 'image/gif') mediaType = 'animation';
+                const telegramResult = await uploadToTelegram(file, 'upload', '📦 <b>Uploaded in web</b>', mediaType);
+                storageResult = { file_id: telegramResult.file_id };
+            }
+        } else {
+            // Use Telegram for small files (<50MB) or if HF not configured
+            let mediaType: 'photo' | 'animation' | 'video' = 'photo';
+            if (file.type.startsWith('video/')) mediaType = 'video';
+            if (file.type === 'image/gif') mediaType = 'animation';
+            const telegramResult = await uploadToTelegram(file, 'upload', '📦 <b>Uploaded in web</b>', mediaType);
+            storageResult = { file_id: telegramResult.file_id };
+        }
+
+        const record: any = {
             id,
-            telegram_file_id: telegramResult.file_id,
+            telegram_file_id: storageResult.file_id,
+            storage_type: storageType,
+            storage_url: storageResult.file_url,
             created_at: Date.now(),
             metadata: {
                 size: file.size,

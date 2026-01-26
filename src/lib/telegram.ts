@@ -147,6 +147,18 @@ export async function getTelegramFileUrl(fileId: string): Promise<string> {
   return `https://api.telegram.org/file/bot${token}/${filePath}`;
 }
 
+/**
+ * Download file from Telegram by file_id
+ */
+export async function downloadTelegramFile(fileId: string): Promise<Blob> {
+  const fileUrl = await getTelegramFileUrl(fileId);
+  const response = await fetch(fileUrl);
+  if (!response.ok) {
+    throw new Error(`Failed to download file from Telegram: ${response.statusText}`);
+  }
+  return response.blob();
+}
+
 export async function sendMessage(chatId: number | string, text: string, parseMode: 'HTML' | 'Markdown' = 'HTML', replyMarkup?: any): Promise<void> {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   if (!token) return;
