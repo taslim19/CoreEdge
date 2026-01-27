@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { saveImage, rateLimit } from '@/lib/db';
-import { sendLog, uploadToTelegram } from '@/lib/telegram';
+import { sendLog, uploadToTelegram, sendMessage } from '@/lib/telegram';
 import { downloadFromR2 } from '@/lib/r2';
 
 export async function POST(req: NextRequest) {
@@ -56,42 +56,76 @@ export async function POST(req: NextRequest) {
 
         const publicUrl = `${baseUrl}/i/${id}`;
 
-        // Forward to Telegram chat (download from R2 and upload to Telegram)
-        // Try to do it, but don't block the response for very large files
-        // For files <50MB, wait for it. For larger files, do it async
-        const shouldWaitForTelegram = fileSize < 50 * 1024 * 1024; // 50MB threshold
+        // Forward to Telegram chat
+        // Telegram has file size limits: Photos 10MB, Videos 50MB, Documents 50MB
+        // For files larger than these limits, send a notification message instead
+        const TELEGRAM_PHOTO_LIMIT = 10 * 1024 * 1024; // 10MB
+        const TELEGRAM_VIDEO_LIMIT = 50 * 1024 * 1024; // 50MB
+        const TELEGRAM_ANIMATION_LIMIT = 50 * 1024 * 1024; // 50MB
+        
+        let mediaType: 'photo' | 'animation' | 'video' = 'photo';
+        if (contentType.startsWith('video/')) mediaType = 'video';
+        if (contentType === 'image/gif') mediaType = 'animation';
+        
+        const getTelegramLimit = () => {
+            if (mediaType === 'photo') return TELEGRAM_PHOTO_LIMIT;
+            if (mediaType === 'video') return TELEGRAM_VIDEO_LIMIT;
+            if (mediaType === 'animation') return TELEGRAM_ANIMATION_LIMIT;
+            return TELEGRAM_VIDEO_LIMIT; // Default
+        };
+        
+        const telegramLimit = getTelegramLimit();
+        const isFileTooLarge = fileSize > telegramLimit;
         
         const forwardToTelegram = async () => {
             try {
-                console.log(`[Telegram Forward] Starting for ${id}, size: ${(fileSize / 1024 / 1024).toFixed(2)} MB`);
-                const result = await downloadFromR2(objectKey);
-                const fileBlob = result.blob;
-                console.log(`[Telegram Forward] Downloaded from R2, size: ${(fileBlob.size / 1024 / 1024).toFixed(2)} MB`);
-                
-                let mediaType: 'photo' | 'animation' | 'video' = 'photo';
-                if (contentType.startsWith('video/')) mediaType = 'video';
-                if (contentType === 'image/gif') mediaType = 'animation';
-                
-                console.log(`[Telegram Forward] Uploading to Telegram as ${mediaType}...`);
-                await uploadToTelegram(
-                    fileBlob,
-                    `upload_${id}`,
-                    `📦 <b>Uploaded via Web (R2)</b>\n\nType: ${contentType}\nSize: ${(fileSize / 1024 / 1024).toFixed(2)} MB\nLink: ${publicUrl}`,
-                    mediaType
-                );
-                console.log(`[Telegram Forward] ✅ Success for ${id}`);
-                await sendLog(`✅ <b>R2 Upload & Telegram Forward Complete</b>\n\nID: ${id}\nType: ${contentType}\nSize: ${(fileSize / 1024 / 1024).toFixed(2)} MB\nLink: ${publicUrl}`);
+                if (isFileTooLarge) {
+                    // File is too large for Telegram - send notification message instead
+                    console.log(`[Telegram Forward] File too large (${(fileSize / 1024 / 1024).toFixed(2)} MB > ${(telegramLimit / 1024 / 1024).toFixed(0)} MB), sending notification only`);
+                    const chatId = process.env.TELEGRAM_CHAT_ID;
+                    if (chatId) {
+                        await sendMessage(
+                            chatId,
+                            `📦 <b>Large File Uploaded via Web (R2)</b>\n\n` +
+                            `Type: ${contentType}\n` +
+                            `Size: ${(fileSize / 1024 / 1024).toFixed(2)} MB\n` +
+                            `ID: <code>${id}</code>\n\n` +
+                            `🔗 <a href="${publicUrl}">View File</a>\n\n` +
+                            `<i>File too large for Telegram upload (limit: ${(telegramLimit / 1024 / 1024).toFixed(0)}MB). Stored in R2 only.</i>`,
+                            'HTML'
+                        );
+                    }
+                    await sendLog(`📦 <b>Large File Upload (R2 Only)</b>\n\nID: ${id}\nType: ${contentType}\nSize: ${(fileSize / 1024 / 1024).toFixed(2)} MB\nLink: ${publicUrl}`);
+                } else {
+                    // File is within Telegram limits - upload it
+                    console.log(`[Telegram Forward] Starting for ${id}, size: ${(fileSize / 1024 / 1024).toFixed(2)} MB`);
+                    const result = await downloadFromR2(objectKey);
+                    const fileBlob = result.blob;
+                    console.log(`[Telegram Forward] Downloaded from R2, size: ${(fileBlob.size / 1024 / 1024).toFixed(2)} MB`);
+                    
+                    console.log(`[Telegram Forward] Uploading to Telegram as ${mediaType}...`);
+                    await uploadToTelegram(
+                        fileBlob,
+                        `upload_${id}`,
+                        `📦 <b>Uploaded via Web (R2)</b>\n\nType: ${contentType}\nSize: ${(fileSize / 1024 / 1024).toFixed(2)} MB\nLink: ${publicUrl}`,
+                        mediaType
+                    );
+                    console.log(`[Telegram Forward] ✅ Success for ${id}`);
+                    await sendLog(`✅ <b>R2 Upload & Telegram Forward Complete</b>\n\nID: ${id}\nType: ${contentType}\nSize: ${(fileSize / 1024 / 1024).toFixed(2)} MB\nLink: ${publicUrl}`);
+                }
             } catch (telegramError: any) {
                 console.error(`[Telegram Forward] ❌ Failed for ${id}:`, telegramError);
                 await sendLog(`⚠️ <b>R2 Upload Complete</b> (Telegram forward failed)\n\nID: ${id}\nType: ${contentType}\nSize: ${(fileSize / 1024 / 1024).toFixed(2)} MB\nError: ${telegramError.message || String(telegramError)}\nLink: ${publicUrl}`);
             }
         };
         
+        // For files <50MB, wait for Telegram notification/upload to complete
+        // For larger files, do it async (don't block response)
+        const shouldWaitForTelegram = fileSize < 50 * 1024 * 1024;
+        
         if (shouldWaitForTelegram) {
-            // For smaller files, wait for Telegram upload to complete
             await forwardToTelegram();
         } else {
-            // For large files, do it async (don't block response)
             forwardToTelegram().catch(err => {
                 console.error('[Telegram Forward] Unhandled error:', err);
             });
