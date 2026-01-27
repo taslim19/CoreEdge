@@ -105,6 +105,25 @@ export async function downloadFromR2(key: string): Promise<Blob> {
     throw new Error('Failed to download file from R2');
   }
 
-  const arrayBuffer = await response.Body.transformToByteArray();
-  return new Blob([arrayBuffer], { type: response.ContentType || 'application/octet-stream' });
+  // Use transformToWebStream for better compatibility
+  const stream = response.Body.transformToWebStream();
+  const reader = stream.getReader();
+  const chunks: Uint8Array[] = [];
+  
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    if (value) chunks.push(value);
+  }
+  
+  // Combine all chunks into a single Uint8Array
+  const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
+  const combined = new Uint8Array(totalLength);
+  let offset = 0;
+  for (const chunk of chunks) {
+    combined.set(chunk, offset);
+    offset += chunk.length;
+  }
+  
+  return new Blob([combined], { type: response.ContentType || 'application/octet-stream' });
 }
