@@ -161,9 +161,11 @@ export async function downloadTelegramFile(fileId: string): Promise<Blob> {
 
 export async function sendMessage(chatId: number | string, text: string, parseMode: 'HTML' | 'Markdown' = 'HTML', replyMarkup?: any): Promise<void> {
   const token = process.env.TELEGRAM_BOT_TOKEN;
-  if (!token) return;
+  if (!token) {
+    throw new Error('TELEGRAM_BOT_TOKEN not configured');
+  }
 
-  await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+  const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -174,6 +176,12 @@ export async function sendMessage(chatId: number | string, text: string, parseMo
       reply_markup: replyMarkup
     }),
   });
+
+  const data = await response.json();
+  
+  if (!data.ok) {
+    throw new Error(`Telegram API error: ${data.description || 'Unknown error'}`);
+  }
 }
 
 export async function sendMediaToChannel(fileId: string, caption: string, mediaType: 'photo' | 'animation' | 'video' = 'photo'): Promise<TelegramFileResult | void> {

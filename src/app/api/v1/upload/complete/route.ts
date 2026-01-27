@@ -84,16 +84,24 @@ export async function POST(req: NextRequest) {
                     console.log(`[Telegram Forward] File too large (${(fileSize / 1024 / 1024).toFixed(2)} MB > ${(telegramLimit / 1024 / 1024).toFixed(0)} MB), sending notification only`);
                     const chatId = process.env.TELEGRAM_CHAT_ID;
                     if (chatId) {
-                        await sendMessage(
-                            chatId,
-                            `📦 <b>Large File Uploaded via Web (R2)</b>\n\n` +
-                            `Type: ${contentType}\n` +
-                            `Size: ${(fileSize / 1024 / 1024).toFixed(2)} MB\n` +
-                            `ID: <code>${id}</code>\n\n` +
-                            `🔗 <a href="${publicUrl}">View File</a>\n\n` +
-                            `<i>File too large for Telegram upload (limit: ${(telegramLimit / 1024 / 1024).toFixed(0)}MB). Stored in R2 only.</i>`,
-                            'HTML'
-                        );
+                        try {
+                            console.log(`[Telegram Forward] Sending notification to chat ${chatId}...`);
+                            await sendMessage(
+                                chatId,
+                                `📦 <b>Large File Uploaded via Web (R2)</b>\n\n` +
+                                `Type: ${contentType}\n` +
+                                `Size: ${(fileSize / 1024 / 1024).toFixed(2)} MB\n` +
+                                `ID: <code>${id}</code>\n\n` +
+                                `🔗 <a href="${publicUrl}">View File</a>\n\n` +
+                                `<i>File too large for Telegram upload (limit: ${(telegramLimit / 1024 / 1024).toFixed(0)}MB). Stored in R2 only.</i>`,
+                                'HTML'
+                            );
+                            console.log(`[Telegram Forward] ✅ Notification sent successfully`);
+                        } catch (msgError: any) {
+                            console.error(`[Telegram Forward] ❌ Failed to send notification:`, msgError);
+                        }
+                    } else {
+                        console.error(`[Telegram Forward] ❌ TELEGRAM_CHAT_ID not configured`);
                     }
                     await sendLog(`📦 <b>Large File Upload (R2 Only)</b>\n\nID: ${id}\nType: ${contentType}\nSize: ${(fileSize / 1024 / 1024).toFixed(2)} MB\nLink: ${publicUrl}`);
                 } else {
