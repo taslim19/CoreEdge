@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { uploadToTelegram, sendLog } from '@/lib/telegram';
-import { uploadToHuggingFace, isHuggingFaceConfigured } from '@/lib/huggingface';
+import { uploadToR2, isR2Configured } from '@/lib/r2';
 import { saveImage, generateId, rateLimit } from '@/lib/db';
 
 export async function POST(req: NextRequest) {
@@ -50,49 +50,36 @@ export async function POST(req: NextRequest) {
         // Determine storage based on file size
         const LARGE_FILE_THRESHOLD = 50 * 1024 * 1024; // 50MB
         const isLargeFile = file.size > LARGE_FILE_THRESHOLD;
-        const useHFForLargeFiles = isHuggingFaceConfigured() && process.env.USE_HF_FOR_LARGE_FILES === 'true';
+        const useR2ForLargeFiles = isR2Configured() && process.env.USE_R2_STORAGE === 'true';
 
-        // 1. Upload to storage (HF Hub for large files if configured, else Telegram)
+        // 1. Upload to storage (R2 for large files if configured, else Telegram)
         let storageResult: { file_id: string; file_url?: string };
-        let storageType: 'telegram' | 'huggingface' = 'telegram';
+        let storageType: 'telegram' | 'r2' = 'telegram';
 
-        if (useHFForLargeFiles && isLargeFile) {
-            // Use HF Hub for large files (>50MB)
+        if (useR2ForLargeFiles && isLargeFile) {
+            // Prefer R2 for large files when enabled
             try {
-                const fileName = customId || `upload-${id}`;
-                const hfResult = await uploadToHuggingFace(file, fileName, id);
-                storageResult = {
-                    file_id: hfResult.file_id,
-                    file_url: hfResult.file_url
-                };
-                storageType = 'huggingface';
-                
-                // Also forward to Telegram chat (for backup/notification)
-                try {
-                    let mediaType: 'photo' | 'animation' | 'video' = 'photo';
-                    if (file.type.startsWith('video/')) mediaType = 'video';
-                    if (file.type === 'image/gif') mediaType = 'animation';
-                    await uploadToTelegram(file, fileName, `📦 <b>Uploaded in web (HF Hub)</b>\n🔗 <b>HF URL:</b> ${hfResult.file_url}`, mediaType);
-                } catch (tgError) {
-                    console.error('Failed to forward HF upload to Telegram chat:', tgError);
-                    // Don't fail the upload if Telegram forwarding fails
-                }
-            } catch (hfError: any) {
-                console.error('HF upload failed, falling back to Telegram:', hfError);
-                // Fallback to Telegram
+                const objectKey = `uploads/v1/${id}`;
+                const url = await uploadToR2(file, objectKey, file.type);
+                storageResult = { file_id: objectKey, file_url: url };
+                storageType = 'r2';
+            } catch (r2Error: any) {
+                console.error('R2 upload failed, falling back to Telegram:', r2Error);
                 let mediaType: 'photo' | 'animation' | 'video' = 'photo';
                 if (file.type.startsWith('video/')) mediaType = 'video';
                 if (file.type === 'image/gif') mediaType = 'animation';
                 const telegramResult = await uploadToTelegram(file, 'upload', '📦 <b>Uploaded in web</b>', mediaType);
                 storageResult = { file_id: telegramResult.file_id };
+                storageType = 'telegram';
             }
         } else {
-            // Use Telegram for small files (<50MB) or if HF not configured
+            // Use Telegram for small files (<50MB) or if R2 not configured
             let mediaType: 'photo' | 'animation' | 'video' = 'photo';
             if (file.type.startsWith('video/')) mediaType = 'video';
             if (file.type === 'image/gif') mediaType = 'animation';
             const telegramResult = await uploadToTelegram(file, 'upload', '📦 <b>Uploaded in web</b>', mediaType);
             storageResult = { file_id: telegramResult.file_id };
+            storageType = 'telegram';
         }
 
         const record: any = {

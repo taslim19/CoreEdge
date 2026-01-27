@@ -24,7 +24,18 @@ export async function GET(
         const userAgent = req.headers.get('user-agent') || '';
         const isTelegramBot = userAgent.toLowerCase().includes('telegrambot');
 
-        const fileUrl = await getTelegramFileUrl(record.telegram_file_id);
+        // Get file URL based on storage type
+        let fileUrl: string;
+        const storageType = (record as any).storage_type;
+        const storageUrl = (record as any).storage_url as string | undefined;
+
+        if (storageType === 'r2' && storageUrl) {
+            // Use R2 public URL
+            fileUrl = storageUrl;
+        } else {
+            // Default to Telegram
+            fileUrl = await getTelegramFileUrl(record.telegram_file_id);
+        }
 
         const proxyImage = async () => {
             const response = await fetch(fileUrl);
