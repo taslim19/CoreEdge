@@ -43,6 +43,35 @@ export async function GET(
             const headers = new Headers();
             headers.set('Content-Type', response.headers.get('Content-Type') || 'image/jpeg');
             headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+            
+            // Add CORS headers for video playback
+            const origin = req.headers.get('origin');
+            if (origin) {
+                headers.set('Access-Control-Allow-Origin', origin);
+                headers.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+                headers.set('Access-Control-Allow-Headers', 'Range, Content-Type');
+                headers.set('Access-Control-Expose-Headers', 'Content-Length, Content-Range, Accept-Ranges');
+            }
+            
+            // Support range requests for video streaming
+            const range = req.headers.get('range');
+            if (range && blob.size) {
+                const parts = range.replace(/bytes=/, '').split('-');
+                const start = parseInt(parts[0], 10);
+                const end = parts[1] ? parseInt(parts[1], 10) : blob.size - 1;
+                const chunkSize = (end - start) + 1;
+                const chunk = blob.slice(start, end + 1);
+                
+                headers.set('Content-Range', `bytes ${start}-${end}/${blob.size}`);
+                headers.set('Accept-Ranges', 'bytes');
+                headers.set('Content-Length', chunkSize.toString());
+                
+                return new NextResponse(chunk, { 
+                    status: 206, 
+                    headers 
+                });
+            }
+            
             return new NextResponse(blob, { headers });
         };
 

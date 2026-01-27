@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 const R2_ACCOUNT_ID = process.env.R2_ACCOUNT_ID;
@@ -85,4 +85,26 @@ export async function createR2PresignedUrl(
   }
 
   return { uploadUrl, publicUrl };
+}
+
+export async function downloadFromR2(key: string): Promise<Blob> {
+  if (!R2_BUCKET_NAME) {
+    throw new Error('R2_BUCKET_NAME is not set');
+  }
+
+  const client = getR2Client();
+  
+  const command = new GetObjectCommand({
+    Bucket: R2_BUCKET_NAME,
+    Key: key,
+  });
+
+  const response = await client.send(command);
+  
+  if (!response.Body) {
+    throw new Error('Failed to download file from R2');
+  }
+
+  const arrayBuffer = await response.Body.transformToByteArray();
+  return new Blob([arrayBuffer], { type: response.ContentType || 'application/octet-stream' });
 }

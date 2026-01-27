@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { saveImage, rateLimit } from '@/lib/db';
-import { sendLog } from '@/lib/telegram';
+import { sendLog, uploadToTelegram } from '@/lib/telegram';
+import { downloadFromR2 } from '@/lib/r2';
 
 export async function POST(req: NextRequest) {
     const ip = req.headers.get('x-forwarded-for') || 'anonymous';
@@ -55,8 +56,24 @@ export async function POST(req: NextRequest) {
 
         const publicUrl = `${baseUrl}/i/${id}`;
 
-        // Log to Telegram
-        await sendLog(`🌐 <b>New Web Upload (Direct R2)</b>\n\nType: ${contentType}\nSize: ${(fileSize / 1024 / 1024).toFixed(2)} MB\nLink: ${publicUrl}`);
+        // Forward to Telegram chat (download from R2 and upload to Telegram)
+        try {
+            const fileBlob = await downloadFromR2(objectKey);
+            let mediaType: 'photo' | 'animation' | 'video' = 'photo';
+            if (contentType.startsWith('video/')) mediaType = 'video';
+            if (contentType === 'image/gif') mediaType = 'animation';
+            
+            await uploadToTelegram(
+                fileBlob,
+                `upload_${id}`,
+                `📦 <b>Uploaded via Web (R2)</b>\n\nType: ${contentType}\nSize: ${(fileSize / 1024 / 1024).toFixed(2)} MB\nLink: ${publicUrl}`,
+                mediaType
+            );
+        } catch (telegramError: any) {
+            console.error('Failed to forward to Telegram:', telegramError);
+            // Don't fail the upload if Telegram forwarding fails
+            await sendLog(`⚠️ <b>R2 Upload Complete</b> (Telegram forward failed)\n\nType: ${contentType}\nSize: ${(fileSize / 1024 / 1024).toFixed(2)} MB\nLink: ${publicUrl}`);
+        }
 
         return NextResponse.json({
             success: true,
