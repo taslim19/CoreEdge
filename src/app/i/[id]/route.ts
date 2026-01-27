@@ -39,31 +39,10 @@ export async function GET(
 
         const proxyImage = async () => {
             try {
-                // For R2 files, we need to download from R2 directly using our helper
-                let blob: Blob;
-                let contentType: string;
-                
-                if (storageType === 'r2' && storageUrl) {
-                    // Use R2 download helper for direct access
-                    const { downloadFromR2 } = await import('@/lib/r2');
-                    const objectKey = (record as any).telegram_file_id; // R2 object key is stored here
-                    blob = await downloadFromR2(objectKey);
-                    contentType = record.metadata?.type || 'application/octet-stream';
-                } else {
-                    // Fetch from Telegram
-                    const response = await fetch(fileUrl);
-                    if (!response.ok) {
-                        throw new Error(`Failed to fetch file: ${response.statusText}`);
-                    }
-                    blob = await response.blob();
-                    contentType = response.headers.get('Content-Type') || record.metadata?.type || 'image/jpeg';
-                }
-                
                 const headers = new Headers();
-                headers.set('Content-Type', contentType);
                 headers.set('Cache-Control', 'public, max-age=31536000, immutable');
                 
-                // Always add CORS headers for video playback (even without origin for same-origin requests)
+                // Always add CORS headers for video playback
                 const origin = req.headers.get('origin') || req.headers.get('referer')?.split('/').slice(0, 3).join('/') || '*';
                 headers.set('Access-Control-Allow-Origin', origin === '*' ? '*' : origin);
                 headers.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
@@ -72,24 +51,78 @@ export async function GET(
                 headers.set('Accept-Ranges', 'bytes');
                 
                 // Support range requests for video streaming
-                const range = req.headers.get('range');
-                if (range && blob.size) {
-                    const parts = range.replace(/bytes=/, '').split('-');
-                    const start = parseInt(parts[0], 10);
-                    const end = parts[1] ? parseInt(parts[1], 10) : blob.size - 1;
-                    const chunkSize = (end - start) + 1;
-                    const chunk = blob.slice(start, end + 1);
+                const rangeHeader = req.headers.get('range');
+                let blob: Blob;
+                let contentType: string;
+                let totalSize: number;
+                
+                if (storageType === 'r2' && storageUrl) {
+                    // Use R2 download helper for direct access
+                    const { downloadFromR2 } = await import('@/lib/r2');
+                    const objectKey = (record as any).telegram_file_id; // R2 object key is stored here
                     
-                    headers.set('Content-Range', `bytes ${start}-${end}/${blob.size}`);
-                    headers.set('Content-Length', chunkSize.toString());
+                    // Get file size from metadata (we already have it stored)
+                    totalSize = record.metadata?.size || 0;
+                    contentType = record.metadata?.type || 'application/octet-stream';
                     
-                    return new NextResponse(chunk, { 
-                        status: 206, 
-                        headers 
-                    });
+                    if (rangeHeader && totalSize > 0) {
+                        // Parse range request
+                        const parts = rangeHeader.replace(/bytes=/, '').split('-');
+                        const start = parseInt(parts[0], 10);
+                        const end = parts[1] ? parseInt(parts[1], 10) : (totalSize - 1);
+                        const actualEnd = Math.min(end, totalSize - 1);
+                        
+                        // Download only the requested range
+                        const rangeResult = await downloadFromR2(objectKey, { start, end: actualEnd });
+                        blob = rangeResult.blob;
+                        contentType = rangeResult.contentType || contentType;
+                        
+                        headers.set('Content-Type', contentType);
+                        headers.set('Content-Range', `bytes ${start}-${actualEnd}/${totalSize}`);
+                        headers.set('Content-Length', blob.size.toString());
+                        
+                        return new NextResponse(blob, { 
+                            status: 206, 
+                            headers 
+                        });
+                    } else {
+                        // Full file download
+                        const result = await downloadFromR2(objectKey);
+                        blob = result.blob;
+                        contentType = result.contentType || contentType;
+                        totalSize = result.contentLength || totalSize || blob.size;
+                    }
+                } else {
+                    // Fetch from Telegram
+                    const response = await fetch(fileUrl, rangeHeader ? {
+                        headers: { Range: rangeHeader }
+                    } : {});
+                    
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch file: ${response.statusText}`);
+                    }
+                    
+                    blob = await response.blob();
+                    contentType = response.headers.get('Content-Type') || record.metadata?.type || 'image/jpeg';
+                    totalSize = parseInt(response.headers.get('Content-Length') || '0', 10) || blob.size;
+                    
+                    // Handle range response from Telegram
+                    if (response.status === 206 && rangeHeader) {
+                        const contentRange = response.headers.get('Content-Range');
+                        if (contentRange) {
+                            headers.set('Content-Range', contentRange);
+                        }
+                        headers.set('Content-Type', contentType);
+                        headers.set('Content-Length', blob.size.toString());
+                        return new NextResponse(blob, { 
+                            status: 206, 
+                            headers 
+                        });
+                    }
                 }
                 
-                headers.set('Content-Length', blob.size.toString());
+                headers.set('Content-Type', contentType);
+                headers.set('Content-Length', totalSize.toString());
                 return new NextResponse(blob, { headers });
             } catch (error: any) {
                 console.error('Proxy error:', error);

@@ -57,30 +57,45 @@ export async function POST(req: NextRequest) {
         const publicUrl = `${baseUrl}/i/${id}`;
 
         // Forward to Telegram chat (download from R2 and upload to Telegram)
-        // Do this asynchronously so it doesn't block the API response
-        // Even for large files, we'll try - if it times out, it times out, but we attempt it
-        Promise.resolve().then(async () => {
+        // Try to do it, but don't block the response for very large files
+        // For files <50MB, wait for it. For larger files, do it async
+        const shouldWaitForTelegram = fileSize < 50 * 1024 * 1024; // 50MB threshold
+        
+        const forwardToTelegram = async () => {
             try {
                 console.log(`[Telegram Forward] Starting for ${id}, size: ${(fileSize / 1024 / 1024).toFixed(2)} MB`);
-                const fileBlob = await downloadFromR2(objectKey);
+                const result = await downloadFromR2(objectKey);
+                const fileBlob = result.blob;
+                console.log(`[Telegram Forward] Downloaded from R2, size: ${(fileBlob.size / 1024 / 1024).toFixed(2)} MB`);
+                
                 let mediaType: 'photo' | 'animation' | 'video' = 'photo';
                 if (contentType.startsWith('video/')) mediaType = 'video';
                 if (contentType === 'image/gif') mediaType = 'animation';
                 
+                console.log(`[Telegram Forward] Uploading to Telegram as ${mediaType}...`);
                 await uploadToTelegram(
                     fileBlob,
                     `upload_${id}`,
                     `📦 <b>Uploaded via Web (R2)</b>\n\nType: ${contentType}\nSize: ${(fileSize / 1024 / 1024).toFixed(2)} MB\nLink: ${publicUrl}`,
                     mediaType
                 );
-                console.log(`[Telegram Forward] Success for ${id}`);
+                console.log(`[Telegram Forward] ✅ Success for ${id}`);
+                await sendLog(`✅ <b>R2 Upload & Telegram Forward Complete</b>\n\nID: ${id}\nType: ${contentType}\nSize: ${(fileSize / 1024 / 1024).toFixed(2)} MB\nLink: ${publicUrl}`);
             } catch (telegramError: any) {
-                console.error(`[Telegram Forward] Failed for ${id}:`, telegramError);
-                await sendLog(`⚠️ <b>R2 Upload Complete</b> (Telegram forward failed)\n\nID: ${id}\nType: ${contentType}\nSize: ${(fileSize / 1024 / 1024).toFixed(2)} MB\nError: ${telegramError.message}\nLink: ${publicUrl}`);
+                console.error(`[Telegram Forward] ❌ Failed for ${id}:`, telegramError);
+                await sendLog(`⚠️ <b>R2 Upload Complete</b> (Telegram forward failed)\n\nID: ${id}\nType: ${contentType}\nSize: ${(fileSize / 1024 / 1024).toFixed(2)} MB\nError: ${telegramError.message || String(telegramError)}\nLink: ${publicUrl}`);
             }
-        }).catch(err => {
-            console.error('[Telegram Forward] Promise error:', err);
-        });
+        };
+        
+        if (shouldWaitForTelegram) {
+            // For smaller files, wait for Telegram upload to complete
+            await forwardToTelegram();
+        } else {
+            // For large files, do it async (don't block response)
+            forwardToTelegram().catch(err => {
+                console.error('[Telegram Forward] Unhandled error:', err);
+            });
+        }
 
         return NextResponse.json({
             success: true,

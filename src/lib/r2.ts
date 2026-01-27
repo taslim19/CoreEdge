@@ -87,23 +87,32 @@ export async function createR2PresignedUrl(
   return { uploadUrl, publicUrl };
 }
 
-export async function downloadFromR2(key: string): Promise<Blob> {
+export async function downloadFromR2(key: string, range?: { start: number; end: number }): Promise<{ blob: Blob; contentType: string; contentLength: number }> {
   if (!R2_BUCKET_NAME) {
     throw new Error('R2_BUCKET_NAME is not set');
   }
 
   const client = getR2Client();
   
-  const command = new GetObjectCommand({
+  const commandParams: any = {
     Bucket: R2_BUCKET_NAME,
     Key: key,
-  });
+  };
+  
+  // Add Range header if specified (for video streaming)
+  if (range) {
+    commandParams.Range = `bytes=${range.start}-${range.end}`;
+  }
 
+  const command = new GetObjectCommand(commandParams);
   const response = await client.send(command);
   
   if (!response.Body) {
     throw new Error('Failed to download file from R2');
   }
+
+  const contentType = response.ContentType || 'application/octet-stream';
+  const contentLength = response.ContentLength || 0;
 
   // Use transformToWebStream for better compatibility
   const stream = response.Body.transformToWebStream();
@@ -125,5 +134,9 @@ export async function downloadFromR2(key: string): Promise<Blob> {
     offset += chunk.length;
   }
   
-  return new Blob([combined], { type: response.ContentType || 'application/octet-stream' });
+  return {
+    blob: new Blob([combined], { type: contentType }),
+    contentType,
+    contentLength: contentLength || combined.length
+  };
 }
