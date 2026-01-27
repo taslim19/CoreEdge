@@ -100,54 +100,146 @@ export default function Home() {
         setResult(null);
         setShowQr(false);
 
-        const formData = new FormData();
-        formData.append('file', file);
-        if (customId) formData.append('customId', customId);
+        // Use direct-to-R2 for files larger than 10MB to bypass Vercel's body limit
+        const LARGE_FILE_THRESHOLD = 10 * 1024 * 1024; // 10MB
+        const useDirectUpload = file.size > LARGE_FILE_THRESHOLD;
 
         try {
-            await new Promise<void>((resolve, reject) => {
-                const xhr = new XMLHttpRequest();
+            if (useDirectUpload) {
+                // Direct-to-R2 upload flow
+                // Step 1: Initialize upload and get presigned URL
+                setUploadProgress(5);
+                const initResponse = await fetch('/api/v1/upload/init', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fileName: file.name,
+                        fileSize: file.size,
+                        contentType: file.type,
+                        customId: customId || undefined
+                    })
+                });
 
-                xhr.open('POST', '/api/v1/upload', true);
+                const initData = await initResponse.json();
+                if (!initData.success) {
+                    throw new Error(initData.error?.message || 'Failed to initialize upload');
+                }
 
-                xhr.upload.onprogress = (event) => {
-                    if (event.lengthComputable) {
-                        const percent = Math.round((event.loaded / event.total) * 100);
-                        setUploadProgress(percent);
-                    }
-                };
+                const { id, uploadUrl, publicUrl, objectKey } = initData.data;
 
-                xhr.onload = () => {
-                    try {
-                        const json = JSON.parse(xhr.responseText || '{}');
-                        if (!json.success) {
-                            reject(new Error(json.error?.message || 'Upload failed'));
-                            return;
+                // Step 2: Upload directly to R2 using presigned URL
+                setUploadProgress(10);
+                await new Promise<void>((resolve, reject) => {
+                    const xhr = new XMLHttpRequest();
+
+                    xhr.open('PUT', uploadUrl, true);
+                    xhr.setRequestHeader('Content-Type', file.type);
+
+                    xhr.upload.onprogress = (event) => {
+                        if (event.lengthComputable) {
+                            // Map progress from 10% to 90% (leaving 10% for completion)
+                            const uploadPercent = Math.round((event.loaded / event.total) * 80);
+                            setUploadProgress(10 + uploadPercent);
                         }
-                        const data = json.data;
-                        setResult(data);
-                        saveToHistory({
-                            id: data.id,
-                            url: data.url,
-                            timestamp: Date.now()
-                        });
-                        setCustomId('');
-                        resolve();
-                    } catch (err) {
-                        reject(err);
-                    }
-                };
+                    };
 
-                xhr.onerror = () => {
-                    reject(new Error('Network error during upload'));
-                };
+                    xhr.onload = () => {
+                        if (xhr.status >= 200 && xhr.status < 300) {
+                            resolve();
+                        } else {
+                            reject(new Error(`Upload failed with status ${xhr.status}`));
+                        }
+                    };
 
-                xhr.onabort = () => {
-                    reject(new Error('Upload aborted'));
-                };
+                    xhr.onerror = () => {
+                        reject(new Error('Network error during upload'));
+                    };
 
-                xhr.send(formData);
-            });
+                    xhr.onabort = () => {
+                        reject(new Error('Upload aborted'));
+                    };
+
+                    xhr.send(file);
+                });
+
+                // Step 3: Complete the upload (save record)
+                setUploadProgress(95);
+                const completeResponse = await fetch('/api/v1/upload/complete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id,
+                        objectKey,
+                        fileSize: file.size,
+                        contentType: file.type,
+                        storageUrl: publicUrl
+                    })
+                });
+
+                const completeData = await completeResponse.json();
+                if (!completeData.success) {
+                    throw new Error(completeData.error?.message || 'Failed to complete upload');
+                }
+
+                setUploadProgress(100);
+                const data = completeData.data;
+                setResult(data);
+                saveToHistory({
+                    id: data.id,
+                    url: data.url,
+                    timestamp: Date.now()
+                });
+                setCustomId('');
+            } else {
+                // Small file: use existing Vercel flow
+                const formData = new FormData();
+                formData.append('file', file);
+                if (customId) formData.append('customId', customId);
+
+                await new Promise<void>((resolve, reject) => {
+                    const xhr = new XMLHttpRequest();
+
+                    xhr.open('POST', '/api/v1/upload', true);
+
+                    xhr.upload.onprogress = (event) => {
+                        if (event.lengthComputable) {
+                            const percent = Math.round((event.loaded / event.total) * 100);
+                            setUploadProgress(percent);
+                        }
+                    };
+
+                    xhr.onload = () => {
+                        try {
+                            const json = JSON.parse(xhr.responseText || '{}');
+                            if (!json.success) {
+                                reject(new Error(json.error?.message || 'Upload failed'));
+                                return;
+                            }
+                            const data = json.data;
+                            setResult(data);
+                            saveToHistory({
+                                id: data.id,
+                                url: data.url,
+                                timestamp: Date.now()
+                            });
+                            setCustomId('');
+                            resolve();
+                        } catch (err) {
+                            reject(err);
+                        }
+                    };
+
+                    xhr.onerror = () => {
+                        reject(new Error('Network error during upload'));
+                    };
+
+                    xhr.onabort = () => {
+                        reject(new Error('Upload aborted'));
+                    };
+
+                    xhr.send(formData);
+                });
+            }
         } catch (err: any) {
             alert(err.message || 'Upload failed');
         } finally {
