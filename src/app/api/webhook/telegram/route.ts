@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { TelegramUpdate, sendMessage, sendMediaToChannel, sendLog, downloadTelegramFile, getTelegramFileUrl } from '@/lib/telegram';
-import { uploadToHuggingFace, isHuggingFaceConfigured } from '@/lib/huggingface';
+import { TelegramUpdate, sendMessage, sendMediaToChannel, sendLog, downloadTelegramFile } from '@/lib/telegram';
+import { uploadToR2, isR2Configured } from '@/lib/r2';
 import { saveImage, generateId, getStats, registerUser } from '@/lib/db';
 
 export async function POST(req: NextRequest) {
@@ -164,27 +164,27 @@ async function processFile(chatId: number, fileId: string, fileSize: number, mim
         // Determine storage based on file size
         const LARGE_FILE_THRESHOLD = 50 * 1024 * 1024; // 50MB
         const isLargeFile = fileSize > LARGE_FILE_THRESHOLD;
-        const useHFForLargeFiles = isHuggingFaceConfigured() && process.env.USE_HF_FOR_LARGE_FILES === 'true';
+        const useR2ForLargeFiles = isR2Configured() && process.env.USE_R2_STORAGE === 'true';
 
         let storageResult: { file_id: string; file_url?: string };
-        let storageType: 'telegram' | 'huggingface' = 'telegram';
+        let storageType: 'telegram' | 'r2' = 'telegram';
 
-        if (useHFForLargeFiles && isLargeFile) {
-            // For large files, download from Telegram and upload to HF Hub
+        if (useR2ForLargeFiles && isLargeFile) {
+            // For large files, download from Telegram and upload to R2
             try {
                 const fileBlob = await downloadTelegramFile(fileId);
-                const fileName = `bot-upload-${id}`;
-                const hfResult = await uploadToHuggingFace(fileBlob, fileName, id);
+                const objectKey = `uploads/bot/${id}`;
+                const url = await uploadToR2(fileBlob, objectKey, mimeType);
                 storageResult = {
-                    file_id: hfResult.file_id,
-                    file_url: hfResult.file_url
+                    file_id: objectKey,
+                    file_url: url
                 };
-                storageType = 'huggingface';
-                
+                storageType = 'r2';
+
                 // Still forward to Telegram chat for backup/notification
-                await sendMediaToChannel(fileId, `👤 <b>Uploaded by:</b> ${userLink}\n📦 <b>Stored in HF Hub</b>\n🔗 <b>HF URL:</b> ${hfResult.file_url}`, mediaType);
-            } catch (hfError: any) {
-                console.error('HF upload failed for bot, using Telegram:', hfError);
+                await sendMediaToChannel(fileId, `👤 <b>Uploaded by:</b> ${userLink}\n📦 <b>Stored in R2</b>`, mediaType);
+            } catch (r2Error: any) {
+                console.error('R2 upload failed for bot, using Telegram:', r2Error);
                 // Fallback to Telegram
                 await sendMediaToChannel(fileId, `👤 <b>Uploaded by:</b> ${userLink}`, mediaType);
                 storageResult = { file_id: fileId };
@@ -214,12 +214,12 @@ async function processFile(chatId: number, fileId: string, fileSize: number, mim
         await sendMessage(chatId,
             `✅ <b>File Uploaded Successfully!</b>\n\n` +
             `🔗 <b>Link:</b> ${publicUrl}\n` +
-            (storageType === 'huggingface' ? `📦 <b>Stored in:</b> Hugging Face Hub\n` : '') +
+            (storageType === 'r2' ? `📦 <b>Stored in:</b> Cloudflare R2\n` : '') +
             `⚡ <i>Hosted on VoltEdge</i>`,
             'HTML'
         );
 
-        await sendLog(`📤 <b>New Bot Upload</b>\n\nUser: ${userLink}\nType: ${mimeType}\nSize: ${(fileSize / 1024 / 1024).toFixed(2)} MB\nStorage: ${storageType === 'huggingface' ? 'HF Hub' : 'Telegram'}\nLink: ${publicUrl}`);
+        await sendLog(`📤 <b>New Bot Upload</b>\n\nUser: ${userLink}\nType: ${mimeType}\nSize: ${(fileSize / 1024 / 1024).toFixed(2)} MB\nStorage: ${storageType === 'r2' ? 'R2' : 'Telegram'}\nLink: ${publicUrl}`);
     } catch (error) {
         console.error('Processing error:', error);
         await sendLog(`❌ <b>Upload Processing Error</b>\n\nUser: ${userLink}\nError: ${error}`);
