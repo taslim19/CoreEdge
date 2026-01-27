@@ -38,41 +38,66 @@ export async function GET(
         }
 
         const proxyImage = async () => {
-            const response = await fetch(fileUrl);
-            const blob = await response.blob();
-            const headers = new Headers();
-            headers.set('Content-Type', response.headers.get('Content-Type') || 'image/jpeg');
-            headers.set('Cache-Control', 'public, max-age=31536000, immutable');
-            
-            // Add CORS headers for video playback
-            const origin = req.headers.get('origin');
-            if (origin) {
-                headers.set('Access-Control-Allow-Origin', origin);
+            try {
+                // For R2 files, we need to download from R2 directly using our helper
+                let blob: Blob;
+                let contentType: string;
+                
+                if (storageType === 'r2' && storageUrl) {
+                    // Use R2 download helper for direct access
+                    const { downloadFromR2 } = await import('@/lib/r2');
+                    const objectKey = (record as any).telegram_file_id; // R2 object key is stored here
+                    blob = await downloadFromR2(objectKey);
+                    contentType = record.metadata?.type || 'application/octet-stream';
+                } else {
+                    // Fetch from Telegram
+                    const response = await fetch(fileUrl);
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch file: ${response.statusText}`);
+                    }
+                    blob = await response.blob();
+                    contentType = response.headers.get('Content-Type') || record.metadata?.type || 'image/jpeg';
+                }
+                
+                const headers = new Headers();
+                headers.set('Content-Type', contentType);
+                headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+                
+                // Always add CORS headers for video playback (even without origin for same-origin requests)
+                const origin = req.headers.get('origin') || req.headers.get('referer')?.split('/').slice(0, 3).join('/') || '*';
+                headers.set('Access-Control-Allow-Origin', origin === '*' ? '*' : origin);
                 headers.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
                 headers.set('Access-Control-Allow-Headers', 'Range, Content-Type');
                 headers.set('Access-Control-Expose-Headers', 'Content-Length, Content-Range, Accept-Ranges');
-            }
-            
-            // Support range requests for video streaming
-            const range = req.headers.get('range');
-            if (range && blob.size) {
-                const parts = range.replace(/bytes=/, '').split('-');
-                const start = parseInt(parts[0], 10);
-                const end = parts[1] ? parseInt(parts[1], 10) : blob.size - 1;
-                const chunkSize = (end - start) + 1;
-                const chunk = blob.slice(start, end + 1);
-                
-                headers.set('Content-Range', `bytes ${start}-${end}/${blob.size}`);
                 headers.set('Accept-Ranges', 'bytes');
-                headers.set('Content-Length', chunkSize.toString());
                 
-                return new NextResponse(chunk, { 
-                    status: 206, 
-                    headers 
+                // Support range requests for video streaming
+                const range = req.headers.get('range');
+                if (range && blob.size) {
+                    const parts = range.replace(/bytes=/, '').split('-');
+                    const start = parseInt(parts[0], 10);
+                    const end = parts[1] ? parseInt(parts[1], 10) : blob.size - 1;
+                    const chunkSize = (end - start) + 1;
+                    const chunk = blob.slice(start, end + 1);
+                    
+                    headers.set('Content-Range', `bytes ${start}-${end}/${blob.size}`);
+                    headers.set('Content-Length', chunkSize.toString());
+                    
+                    return new NextResponse(chunk, { 
+                        status: 206, 
+                        headers 
+                    });
+                }
+                
+                headers.set('Content-Length', blob.size.toString());
+                return new NextResponse(blob, { headers });
+            } catch (error: any) {
+                console.error('Proxy error:', error);
+                return new NextResponse(`Error loading file: ${error.message}`, { 
+                    status: 500,
+                    headers: { 'Content-Type': 'text/plain' }
                 });
             }
-            
-            return new NextResponse(blob, { headers });
         };
 
         const accept = req.headers.get('accept') || '';
