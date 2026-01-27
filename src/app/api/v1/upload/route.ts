@@ -86,7 +86,6 @@ export async function POST(req: NextRequest) {
             id,
             telegram_file_id: storageResult.file_id,
             storage_type: storageType,
-            storage_url: storageResult.file_url,
             created_at: Date.now(),
             metadata: {
                 size: file.size,
@@ -94,6 +93,11 @@ export async function POST(req: NextRequest) {
                 version: 'v1'
             }
         };
+
+        // Only set storage_url when we actually have one
+        if (storageResult.file_url) {
+            record.storage_url = storageResult.file_url;
+        }
 
         // Save to DB
         await saveImage(record);
