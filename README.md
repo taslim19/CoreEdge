@@ -233,9 +233,18 @@ UPSTASH_REDIS_REST_URL=your_url
 UPSTASH_REDIS_REST_TOKEN=your_token
 NEXT_PUBLIC_BASE_URL=https://your-deployment.com
 JWT_SECRET=your-secret-key-change-in-production
+
+# Optional: Hugging Face Hub Storage (alternative to Telegram)
+HF_TOKEN=your_hf_token
+HF_REPO_ID=username/repo-name
+HF_REPO_TYPE=dataset
+USE_HF_STORAGE=false
 ```
 
-**Note:** `JWT_SECRET` is required for API v2 authentication. Use a strong, random secret in production.
+**Note:** 
+- `JWT_SECRET` is required for API v2 authentication. Use a strong, random secret in production.
+- **Storage Backend**: By default, VoltEdge uses Telegram for storage. You can optionally use Hugging Face Hub by setting `USE_HF_STORAGE=true` and providing HF credentials. See `HUGGINGFACE_SETUP.md` for details.
+- **⚠️ Important**: Hugging Face Hub still goes through Vercel, so it won't bypass Vercel's 4.5MB/50MB upload limits. For true 2GB uploads, you need direct client uploads (S3, R2, etc.).
 
 ### 3. One-Click Deploy
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Ftaslim19%2FCoreEdge&env=TELEGRAM_BOT_TOKEN,TELEGRAM_CHAT_ID,UPSTASH_REDIS_REST_URL,UPSTASH_REDIS_REST_TOKEN,NEXT_PUBLIC_BASE_URL)

@@ -20,6 +20,7 @@ interface HistoryItem {
 export default function Home() {
     const [isDragging, setIsDragging] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState<number | null>(null);
     const [result, setResult] = useState<{ id: string; url: string } | null>(null);
     const [copied, setCopied] = useState(false);
     const [customId, setCustomId] = useState('');
@@ -95,6 +96,7 @@ export default function Home() {
         }
 
         setUploading(true);
+        setUploadProgress(0);
         setResult(null);
         setShowQr(false);
 
@@ -103,26 +105,54 @@ export default function Home() {
         if (customId) formData.append('customId', customId);
 
         try {
-            const response = await fetch('/api/v1/upload', {
-                method: 'POST',
-                body: formData,
-            });
+            await new Promise<void>((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
 
-            const json = await response.json();
-            if (!json.success) throw new Error(json.error.message);
+                xhr.open('POST', '/api/v1/upload', true);
 
-            const data = json.data;
-            setResult(data);
-            saveToHistory({
-                id: data.id,
-                url: data.url,
-                timestamp: Date.now()
+                xhr.upload.onprogress = (event) => {
+                    if (event.lengthComputable) {
+                        const percent = Math.round((event.loaded / event.total) * 100);
+                        setUploadProgress(percent);
+                    }
+                };
+
+                xhr.onload = () => {
+                    try {
+                        const json = JSON.parse(xhr.responseText || '{}');
+                        if (!json.success) {
+                            reject(new Error(json.error?.message || 'Upload failed'));
+                            return;
+                        }
+                        const data = json.data;
+                        setResult(data);
+                        saveToHistory({
+                            id: data.id,
+                            url: data.url,
+                            timestamp: Date.now()
+                        });
+                        setCustomId('');
+                        resolve();
+                    } catch (err) {
+                        reject(err);
+                    }
+                };
+
+                xhr.onerror = () => {
+                    reject(new Error('Network error during upload'));
+                };
+
+                xhr.onabort = () => {
+                    reject(new Error('Upload aborted'));
+                };
+
+                xhr.send(formData);
             });
-            setCustomId('');
         } catch (err: any) {
             alert(err.message || 'Upload failed');
         } finally {
             setUploading(false);
+            setUploadProgress(null);
             setIsDragging(false);
         }
     };
@@ -146,10 +176,12 @@ export default function Home() {
             <motion.nav
                 initial={{ y: -100, x: "-50%", opacity: 0 }}
                 animate={{ y: 0, x: "-50%", opacity: 1 }}
+                className="main-nav"
                 style={{
                     position: 'absolute',
-                    top: '2rem',
+                    top: '1rem',
                     left: '50%',
+                    transform: 'translateX(-50%)',
                     background: 'var(--panel-bg)',
                     backdropFilter: 'blur(40px)',
                     border: '1px solid rgba(255, 255, 255, 0.1)',
@@ -160,10 +192,11 @@ export default function Home() {
                     gap: '40px',
                     zIndex: 9999,
                     boxShadow: '0 20px 50px rgba(0,0,0,0.8)',
-                    whiteSpace: 'nowrap'
+                    whiteSpace: 'nowrap',
+                    maxWidth: '95vw'
                 }}
             >
-                <Link href="/" style={{
+                <Link href="/" className="nav-logo" style={{
                     color: 'var(--text-main)',
                     textDecoration: 'none',
                     fontSize: '1.6rem',
@@ -171,7 +204,8 @@ export default function Home() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '10px',
-                    fontFamily: 'Inter, sans-serif'
+                    fontFamily: 'Inter, sans-serif',
+                    flexShrink: 0
                 }}>
                     <Zap 
                         size={24} 
@@ -198,7 +232,7 @@ export default function Home() {
                         }}>Edge</span>
                     </span>
                 </Link>
-                <Link href="/docs" style={{
+                <Link href="/docs" className="nav-link" style={{
                     color: 'var(--text-muted)',
                     textDecoration: 'none',
                     fontSize: '1rem',
@@ -207,7 +241,8 @@ export default function Home() {
                     alignItems: 'center',
                     gap: '8px',
                     transition: 'all 0.3s',
-                    fontFamily: 'Inter, sans-serif'
+                    fontFamily: 'Inter, sans-serif',
+                    whiteSpace: 'nowrap'
                 }}
                 onMouseEnter={(e) => {
                     e.currentTarget.style.color = '#00F0FF';
@@ -221,7 +256,7 @@ export default function Home() {
                     <Code2 size={18} /> API Docs
                 </Link>
 
-                <Link href="/dashboard" style={{
+                <Link href="/dashboard" className="nav-link" style={{
                     color: 'var(--text-muted)',
                     textDecoration: 'none',
                     fontSize: '1rem',
@@ -230,7 +265,8 @@ export default function Home() {
                     alignItems: 'center',
                     gap: '8px',
                     transition: 'all 0.3s',
-                    fontFamily: 'Inter, sans-serif'
+                    fontFamily: 'Inter, sans-serif',
+                    whiteSpace: 'nowrap'
                 }}
                 onMouseEnter={(e) => {
                     e.currentTarget.style.color = '#00F0FF';
@@ -335,7 +371,8 @@ export default function Home() {
                                     textTransform: 'uppercase',
                                     boxShadow: '0 0 10px rgba(0, 240, 255, 0.5)'
                                 }}>BETA</span>
-                                <span>API v2 is now available with Authentication & API Keys!</span>
+                                <span className="beta-text-full">API v2 is now available with Authentication & API Keys!</span>
+                                <span className="beta-text-short" style={{ display: 'none' }}>API v2 Available!</span>
                                 <Link 
                                     href="/dashboard" 
                                     className="get-started-link"
@@ -469,7 +506,7 @@ export default function Home() {
 
                         <div className="upload-text">
                             <h3 style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, color: 'var(--text-main)' }}>
-                                {uploading ? 'Blasting at the edge...' : 'Drop image or video here'}
+                                {uploading ? 'Uploading to the edge…' : 'Drop image or video here'}
                             </h3>
                             <p style={{ 
                                 color: 'var(--text-muted)', 
@@ -486,9 +523,20 @@ export default function Home() {
                                     <motion.div
                                         className="progress-fill"
                                         initial={{ width: 0 }}
-                                        animate={{ width: '100%' }}
-                                        transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                                        animate={{ width: `${uploadProgress ?? 0}%` }}
+                                        transition={{ type: 'tween', duration: 0.2 }}
                                     />
+                                </div>
+                                <div className="progress-label" style={{
+                                    marginTop: '0.5rem',
+                                    fontFamily: 'JetBrains Mono, monospace',
+                                    fontSize: '0.75rem',
+                                    color: 'var(--text-muted)',
+                                    textAlign: 'center',
+                                    letterSpacing: '0.08em',
+                                    textTransform: 'uppercase'
+                                }}>
+                                    {uploadProgress !== null ? `${uploadProgress}% uploaded` : 'Preparing upload...'}
                                 </div>
                             </div>
                         )}

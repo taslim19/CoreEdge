@@ -103,6 +103,144 @@ body::after {
   position: relative;
 }
 
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  .main-nav {
+    padding: 10px 16px !important;
+    gap: 12px !important;
+    top: 0.75rem !important;
+  }
+
+  .nav-logo {
+    font-size: 1.2rem !important;
+    gap: 8px !important;
+  }
+
+  .nav-link {
+    font-size: 0.9rem !important;
+    gap: 6px !important;
+  }
+
+  .main-container {
+    padding: 6rem 1rem 3rem;
+  }
+
+  .hero h1 {
+    font-size: clamp(2rem, 8vw, 3.5rem);
+  }
+
+  .hero p {
+    font-size: 1rem;
+    letter-spacing: 0.1em;
+  }
+
+  .beta-text-full {
+    font-size: 0.85rem !important;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-top: 4rem;
+  }
+
+  .feature-card {
+    padding: 1.5rem;
+  }
+
+  .upload-card {
+    width: 100%;
+    max-width: 100%;
+    padding: 2rem 1.5rem;
+  }
+
+  .drop-zone {
+    padding: 2rem 1.5rem;
+  }
+
+  .upload-icon-container {
+    width: 48px;
+    height: 48px;
+  }
+
+  .upload-text h3 {
+    font-size: 1rem;
+  }
+
+  .footer {
+    padding: 3rem 0 1.5rem;
+  }
+
+  .footer > div {
+    flex-wrap: wrap;
+    gap: 12px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-nav {
+    padding: 8px 12px !important;
+    gap: 8px !important;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .nav-logo {
+    font-size: 1rem !important;
+    gap: 6px !important;
+  }
+
+  .nav-link {
+    font-size: 0.85rem !important;
+    gap: 4px !important;
+  }
+
+  .main-container {
+    padding: 5rem 0.75rem 2rem;
+  }
+
+  .hero h1 {
+    font-size: clamp(1.75rem, 10vw, 2.5rem);
+    margin-bottom: 1rem;
+  }
+
+  .hero p {
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+  }
+
+  .beta-text-full {
+    display: none !important;
+  }
+
+  .beta-text-short {
+    display: inline !important;
+    font-size: 0.75rem !important;
+  }
+
+  .features-grid {
+    gap: 1rem;
+    margin-top: 3rem;
+  }
+
+  .feature-card {
+    padding: 1.25rem;
+  }
+
+  .upload-card {
+    padding: 1.5rem 1rem;
+  }
+
+  .drop-zone {
+    padding: 1.5rem 1rem;
+  }
+
+  .footer > div {
+    flex-direction: column;
+    gap: 8px !important;
+  }
+}
+
 .hero {
   text-align: center;
   max-width: 800px;
@@ -185,6 +323,12 @@ body::after {
     0 25px 50px -12px var(--card-shadow);
   transition: all 0.3s ease;
   position: relative;
+}
+
+@media (max-width: 768px) {
+  .upload-card {
+    max-width: 100%;
+  }
 }
 
 .upload-card:hover {
