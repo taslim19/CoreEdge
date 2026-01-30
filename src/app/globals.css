@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Cyber-Cloud Palette */
+  /* Default dark theme - Cyber-Cloud Palette */
   --bg-color: #000000;
   --bg-charcoal: #050505;
   --accent-cyan: #00F0FF;
@@ -30,7 +30,57 @@
   --card-shadow: rgba(0, 0, 0, 0.8);
 }
 
-/* Light theme disabled for Cyber-Cloud aesthetic - keeping dark only */
+/* Dark Theme */
+[data-theme="dark"] {
+  --bg-color: #000000;
+  --bg-charcoal: #050505;
+  --accent-cyan: #00F0FF;
+  --accent-cyan-glow: rgba(0, 240, 255, 0.3);
+  --accent-cyan-subtle: rgba(0, 240, 255, 0.1);
+  --accent-midnight: #0A192F;
+  --text-main: #ffffff;
+  --text-muted: #8892b0;
+  --text-cyan: #00F0FF;
+  --panel-bg: rgba(10, 25, 47, 0.4);
+  --border-color: rgba(0, 240, 255, 0.2);
+  --border-cyan: #00F0FF;
+  --glow-cyan: rgba(0, 240, 255, 0.2);
+  --glow-cyan-intense: rgba(0, 240, 255, 0.4);
+  --input-bg: rgba(0, 0, 0, 0.5);
+  --card-subtext: rgba(136, 146, 176, 0.6);
+  --history-item-bg: rgba(10, 25, 47, 0.3);
+  --toast-bg: rgba(0, 0, 0, 0.95);
+  --panel-header-bg: rgba(10, 25, 47, 0.6);
+  --code-text-color: #00F0FF;
+  --code-bg: #000000;
+  --card-shadow: rgba(0, 0, 0, 0.8);
+}
+
+/* Light Theme */
+[data-theme="light"] {
+  --bg-color: #FFFFFF;
+  --bg-charcoal: #F8F9FA;
+  --accent-cyan: #0099CC;
+  --accent-cyan-glow: rgba(0, 153, 204, 0.3);
+  --accent-cyan-subtle: rgba(0, 153, 204, 0.1);
+  --accent-midnight: #E9ECEF;
+  --text-main: #000000;
+  --text-muted: #6C757D;
+  --text-cyan: #0099CC;
+  --panel-bg: rgba(255, 255, 255, 0.8);
+  --border-color: rgba(0, 153, 204, 0.3);
+  --border-cyan: #0099CC;
+  --glow-cyan: rgba(0, 153, 204, 0.2);
+  --glow-cyan-intense: rgba(0, 153, 204, 0.4);
+  --input-bg: rgba(255, 255, 255, 0.9);
+  --card-subtext: rgba(108, 117, 125, 0.8);
+  --history-item-bg: rgba(248, 249, 250, 0.8);
+  --toast-bg: rgba(255, 255, 255, 0.98);
+  --panel-header-bg: rgba(255, 255, 255, 0.9);
+  --code-text-color: #0099CC;
+  --code-bg: rgba(248, 249, 250, 0.8);
+  --card-shadow: rgba(0, 0, 0, 0.1);
+}
 
 * {
   box-sizing: border-box;
@@ -46,6 +96,7 @@ body {
   overflow-y: auto;
   min-height: 100vh;
   position: relative;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Aurora Glows - Three Massive Blurred Elements (Barely Visible) */
@@ -67,6 +118,15 @@ body::before {
   pointer-events: none;
   filter: blur(120px);
   overflow: hidden;
+  transition: opacity 0.3s ease;
+}
+
+[data-theme="light"] body::before {
+  opacity: 0.3;
+  background: 
+    radial-gradient(circle at 90% 10%, rgba(0, 153, 204, 0.02) 0%, transparent 60%),
+    radial-gradient(circle at 10% 50%, rgba(108, 117, 125, 0.02) 0%, transparent 60%),
+    radial-gradient(circle at 90% 90%, rgba(0, 153, 204, 0.02) 0%, transparent 60%);
 }
 
 /* Fading Grid Pattern + Noise Texture */
@@ -91,6 +151,16 @@ body::after {
   /* Fade grid from bottom (visible) to top (invisible) */
   mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.8) 30%, rgba(0, 0, 0, 0.4) 60%, rgba(0, 0, 0, 0) 100%);
   -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.8) 30%, rgba(0, 0, 0, 0.4) 60%, rgba(0, 0, 0, 0) 100%);
+  transition: opacity 0.3s ease;
+}
+
+[data-theme="light"] body::after {
+  background-image: 
+    linear-gradient(rgba(0, 153, 204, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 153, 204, 0.08) 1px, transparent 1px),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E");
+  mask-image: linear-gradient(to top, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.8) 30%, rgba(255, 255, 255, 0.4) 60%, rgba(255, 255, 255, 0) 100%);
+  -webkit-mask-image: linear-gradient(to top, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.8) 30%, rgba(255, 255, 255, 0.4) 60%, rgba(255, 255, 255, 0) 100%);
 }
 
 .main-container {
@@ -306,15 +376,15 @@ body::after {
   letter-spacing: -0.05em;
   line-height: 1;
   margin-bottom: 1.5rem;
-  color: #FFFFFF;
+  color: var(--text-main);
 }
 
 .hero h1 .cyber-glow {
-  background: linear-gradient(to right, #ffffff, #00F0FF);
+  background: linear-gradient(to right, var(--text-main), var(--accent-cyan));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+  text-shadow: 0 0 20px var(--accent-cyan-glow);
   position: relative;
 }
 

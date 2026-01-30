@@ -311,12 +311,12 @@ export default function Home() {
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0' }}>
                         <span style={{ 
                             fontWeight: '500', 
-                            color: '#FFFFFF',
+                            color: 'var(--text-main)',
                             letterSpacing: '-0.05em'
                         }}>Volt</span>
                         <span style={{ 
                             fontWeight: '900',
-                            background: 'linear-gradient(to right, #FFFFFF, #00F0FF)',
+                            background: `linear-gradient(to right, var(--text-main), var(--accent-cyan))`,
                             WebkitBackgroundClip: 'text',
                             WebkitTextFillColor: 'transparent',
                             backgroundClip: 'text',
