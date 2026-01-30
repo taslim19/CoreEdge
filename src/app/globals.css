@@ -106,23 +106,58 @@ body::after {
 /* Mobile Responsive Styles */
 @media (max-width: 768px) {
   .main-nav {
-    padding: 10px 16px !important;
-    gap: 12px !important;
-    top: 0.75rem !important;
+    padding: 8px 12px !important;
+    gap: 8px !important;
+    top: 0.5rem !important;
+    max-width: calc(100vw - 1rem) !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .main-nav::-webkit-scrollbar {
+    display: none;
   }
 
   .nav-logo {
-    font-size: 1.2rem !important;
-    gap: 8px !important;
-  }
-
-  .nav-link {
-    font-size: 0.9rem !important;
+    font-size: 1.1rem !important;
     gap: 6px !important;
   }
 
+  .nav-logo svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .nav-logo span span {
+    font-size: 0.9em !important;
+  }
+
+  .nav-link {
+    font-size: 0.85rem !important;
+    gap: 4px !important;
+    padding: 6px 8px !important;
+  }
+
+  .nav-link-text {
+    display: inline !important;
+  }
+
+  @media (max-width: 480px) {
+    .nav-link-text {
+      display: none !important;
+    }
+  }
+
+  .theme-toggle {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
   .main-container {
-    padding: 6rem 1rem 3rem;
+    padding: 5.5rem 1rem 3rem;
   }
 
   .hero h1 {
@@ -179,24 +214,42 @@ body::after {
 
 @media (max-width: 480px) {
   .main-nav {
-    padding: 8px 12px !important;
-    gap: 8px !important;
-    flex-wrap: wrap;
-    justify-content: center;
+    padding: 6px 10px !important;
+    gap: 6px !important;
+    top: 0.5rem !important;
+    max-width: calc(100vw - 0.5rem) !important;
+    flex-wrap: nowrap !important;
+    justify-content: flex-start !important;
   }
 
   .nav-logo {
-    font-size: 1rem !important;
-    gap: 6px !important;
-  }
-
-  .nav-link {
-    font-size: 0.85rem !important;
+    font-size: 0.95rem !important;
     gap: 4px !important;
   }
 
+  .nav-logo svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+
+  .nav-logo span span {
+    font-size: 0.85em !important;
+  }
+
+  .nav-link {
+    font-size: 0.8rem !important;
+    gap: 4px !important;
+    padding: 4px 6px !important;
+    min-width: 36px !important;
+    justify-content: center !important;
+  }
+
+  .nav-link-text {
+    display: none !important;
+  }
+
   .main-container {
-    padding: 5rem 0.75rem 2rem;
+    padding: 4.5rem 0.75rem 2rem;
   }
 
   .hero h1 {

@@ -345,7 +345,8 @@ export default function Home() {
                     e.currentTarget.style.textShadow = 'none';
                 }}
                 >
-                    <Code2 size={18} /> API Docs
+                    <Code2 size={18} className="icon-only" />
+                    <span className="nav-link-text">API Docs</span>
                 </Link>
 
                 <Link href="/dashboard" className="nav-link" style={{
@@ -369,11 +370,13 @@ export default function Home() {
                     e.currentTarget.style.textShadow = 'none';
                 }}
                 >
-                    <LayoutDashboard size={18} /> Dashboard
+                    <LayoutDashboard size={18} className="icon-only" />
+                    <span className="nav-link-text">Dashboard</span>
                 </Link>
 
                 <button
                     onClick={toggleTheme}
+                    className="theme-toggle"
                     style={{
                         background: 'var(--bg-color)',
                         border: '1px solid var(--border-color)',
@@ -386,7 +389,8 @@ export default function Home() {
                         cursor: 'pointer',
                         color: 'var(--accent-cyan)',
                         transition: 'all 0.3s',
-                        boxShadow: '0 0 10px var(--glow-cyan)'
+                        boxShadow: '0 0 10px var(--glow-cyan)',
+                        flexShrink: 0
                     }}
                     onMouseEnter={(e) => {
                         e.currentTarget.style.borderColor = '#00F0FF';
