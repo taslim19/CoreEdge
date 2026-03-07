@@ -14,6 +14,7 @@ interface User {
     email: string;
     created_at: number;
     last_login?: number;
+    role?: string;
 }
 
 interface ApiKey {
