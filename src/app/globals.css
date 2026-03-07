@@ -77,10 +77,10 @@
   --text-main: #ffffff;
   --text-muted: #8892b0;
   --text-cyan: #00F0FF;
-  --panel-bg: rgba(10, 25, 47, 0.4);
-  --border-color: rgba(0, 240, 255, 0.2);
+  --panel-bg: rgba(0, 0, 0, 0.6);
+  --border-color: rgba(255, 255, 255, 0.1);
   --border-cyan: #00F0FF;
-  --glow-cyan: rgba(0, 240, 255, 0.2);
+  --glow-cyan: rgba(0, 240, 255, 0.15);
   --glow-cyan-intense: rgba(0, 240, 255, 0.4);
   --input-bg: rgba(0, 0, 0, 0.5);
   --card-subtext: rgba(136, 146, 176, 0.6);
@@ -744,13 +744,13 @@ body::after {
 
   0%,
   100% {
-    box-shadow: 0 0 10px var(--accent-cyan), 0 0 20px var(--accent-cyan);
-    opacity: 1;
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+    border-color: rgba(0, 240, 255, 0.3);
   }
 
   50% {
-    box-shadow: 0 0 20px var(--accent-cyan), 0 0 30px var(--accent-cyan), 0 0 40px var(--accent-cyan);
-    opacity: 0.9;
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+    border-color: rgba(0, 240, 255, 0.6);
   }
 }
 

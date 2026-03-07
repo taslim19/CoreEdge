@@ -266,55 +266,55 @@ export default function Home() {
         <>
             {/* Command Bar Navigation */}
             <motion.nav
-                initial={{ y: -100, x: "-50%", opacity: 0 }}
-                animate={{ y: 0, x: "-50%", opacity: 1 }}
+                initial={{ y: -20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
                 className="main-nav"
                 style={{
-                    position: 'absolute',
-                    top: '1rem',
+                    position: 'fixed',
+                    top: '1.5rem',
                     left: '50%',
                     transform: 'translateX(-50%)',
                     background: 'var(--panel-bg)',
-                    backdropFilter: 'blur(40px)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '12px',
-                    padding: '12px 32px',
+                    backdropFilter: 'blur(20px)',
+                    WebkitBackdropFilter: 'blur(20px)',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '100px',
+                    padding: '10px 24px',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '40px',
+                    gap: '24px',
                     zIndex: 9999,
-                    boxShadow: '0 20px 50px rgba(0,0,0,0.8)',
-                    whiteSpace: 'nowrap',
-                    maxWidth: '95vw'
+                    boxShadow: '0 10px 30px -10px rgba(0, 0, 0, 0.5)',
+                    whiteSpace: 'nowrap'
                 }}
             >
                 <Link href="/" className="nav-logo" style={{
                     color: 'var(--text-main)',
                     textDecoration: 'none',
-                    fontSize: '1.6rem',
-                    letterSpacing: '-0.05em',
+                    fontSize: '1.4rem',
+                    letterSpacing: '-0.02em',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '10px',
-                    fontFamily: 'Inter, sans-serif',
+                    fontFamily: "'Inter', sans-serif",
                     flexShrink: 0
                 }}>
-                    <Zap 
-                        size={24} 
-                        fill="#00F0FF" 
-                        color="#00F0FF" 
+                    <Zap
+                        size={24}
+                        fill="#00F0FF"
+                        color="#00F0FF"
                         className="logo-pulse"
                         style={{
                             filter: 'drop-shadow(0 0 4px rgba(0, 240, 255, 0.5))'
                         }}
                     />
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0' }}>
-                        <span style={{ 
-                            fontWeight: '500', 
+                        <span style={{
+                            fontWeight: '500',
                             color: 'var(--text-main)',
                             letterSpacing: '-0.05em'
                         }}>Volt</span>
-                        <span style={{ 
+                        <span style={{
                             fontWeight: '900',
                             background: `linear-gradient(to right, var(--text-main), var(--accent-cyan))`,
                             WebkitBackgroundClip: 'text',
@@ -327,23 +327,23 @@ export default function Home() {
                 <Link href="/docs" className="nav-link" style={{
                     color: 'var(--text-muted)',
                     textDecoration: 'none',
-                    fontSize: '1rem',
-                    fontWeight: '600',
+                    fontSize: '0.9rem',
+                    fontWeight: '500',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '8px',
-                    transition: 'all 0.3s',
-                    fontFamily: 'Inter, sans-serif',
+                    gap: '6px',
+                    transition: 'all 0.2s ease',
+                    fontFamily: "'Inter', sans-serif",
                     whiteSpace: 'nowrap'
                 }}
-                onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#00F0FF';
-                    e.currentTarget.style.textShadow = '0 0 10px rgba(0, 240, 255, 0.5)';
-                }}
-                onMouseLeave={(e) => {
-                    e.currentTarget.style.color = 'var(--text-muted)';
-                    e.currentTarget.style.textShadow = 'none';
-                }}
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.color = '#00F0FF';
+                        e.currentTarget.style.textShadow = '0 0 10px rgba(0, 240, 255, 0.5)';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.color = 'var(--text-muted)';
+                        e.currentTarget.style.textShadow = 'none';
+                    }}
                 >
                     <Code2 size={18} className="icon-only" />
                     <span className="nav-link-text">API Docs</span>
@@ -352,23 +352,23 @@ export default function Home() {
                 <Link href="/dashboard" className="nav-link" style={{
                     color: 'var(--text-muted)',
                     textDecoration: 'none',
-                    fontSize: '1rem',
-                    fontWeight: '600',
+                    fontSize: '0.9rem',
+                    fontWeight: '500',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '8px',
-                    transition: 'all 0.3s',
-                    fontFamily: 'Inter, sans-serif',
+                    gap: '6px',
+                    transition: 'all 0.2s ease',
+                    fontFamily: "'Inter', sans-serif",
                     whiteSpace: 'nowrap'
                 }}
-                onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#00F0FF';
-                    e.currentTarget.style.textShadow = '0 0 10px rgba(0, 240, 255, 0.5)';
-                }}
-                onMouseLeave={(e) => {
-                    e.currentTarget.style.color = 'var(--text-muted)';
-                    e.currentTarget.style.textShadow = 'none';
-                }}
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.color = '#00F0FF';
+                        e.currentTarget.style.textShadow = '0 0 10px rgba(0, 240, 255, 0.5)';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.color = 'var(--text-muted)';
+                        e.currentTarget.style.textShadow = 'none';
+                    }}
                 >
                     <LayoutDashboard size={18} className="icon-only" />
                     <span className="nav-link-text">Dashboard</span>
@@ -378,18 +378,17 @@ export default function Home() {
                     onClick={toggleTheme}
                     className="theme-toggle"
                     style={{
-                        background: 'var(--bg-color)',
+                        background: 'rgba(255, 255, 255, 0.03)',
                         border: '1px solid var(--border-color)',
-                        borderRadius: '8px',
-                        width: '40px',
-                        height: '40px',
+                        borderRadius: '10px',
+                        width: '36px',
+                        height: '36px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         cursor: 'pointer',
                         color: 'var(--accent-cyan)',
-                        transition: 'all 0.3s',
-                        boxShadow: '0 0 10px var(--glow-cyan)',
+                        transition: 'all 0.2s ease',
                         flexShrink: 0
                     }}
                     onMouseEnter={(e) => {
@@ -405,7 +404,7 @@ export default function Home() {
                 </button>
             </motion.nav>
 
-            <main className="main-container">
+            <main className="main-container" style={{ paddingTop: '100px' }}>
 
                 <header className="hero">
                     <motion.div
@@ -469,8 +468,8 @@ export default function Home() {
                                 }}>BETA</span>
                                 <span className="beta-text-full">API v2 is now available with Authentication & API Keys!</span>
                                 <span className="beta-text-short" style={{ display: 'none' }}>API v2 Available!</span>
-                                <Link 
-                                    href="/dashboard" 
+                                <Link
+                                    href="/dashboard"
                                     className="get-started-link"
                                     style={{
                                         color: '#00F0FF',
@@ -569,29 +568,29 @@ export default function Home() {
                         />
 
                         <div className="upload-icon-container">
-                            <svg 
-                                width="48" 
-                                height="48" 
-                                viewBox="0 0 48 48" 
-                                fill="none" 
+                            <svg
+                                width="48"
+                                height="48"
+                                viewBox="0 0 48 48"
+                                fill="none"
                                 xmlns="http://www.w3.org/2000/svg"
                                 style={{
                                     filter: 'drop-shadow(0 0 8px #00F0FF) drop-shadow(0 0 16px rgba(0, 240, 255, 0.5))'
                                 }}
                             >
                                 {/* Cloud Outline */}
-                                <path 
-                                    d="M32 18C34.7614 18 37 20.2386 37 23C37 25.7614 34.7614 28 32 28H16C13.2386 28 11 25.7614 11 23C11 20.2386 13.2386 18 16 18C16.5 14.5 19.5 12 23 12C26.5 12 29.5 14.5 30 18H32Z" 
-                                    stroke="#00F0FF" 
-                                    strokeWidth="2" 
+                                <path
+                                    d="M32 18C34.7614 18 37 20.2386 37 23C37 25.7614 34.7614 28 32 28H16C13.2386 28 11 25.7614 11 23C11 20.2386 13.2386 18 16 18C16.5 14.5 19.5 12 23 12C26.5 12 29.5 14.5 30 18H32Z"
+                                    stroke="#00F0FF"
+                                    strokeWidth="2"
                                     fill="none"
                                     style={{
                                         filter: 'drop-shadow(0 0 4px #00F0FF)'
                                     }}
                                 />
                                 {/* Lightning Bolt */}
-                                <path 
-                                    d="M24 14L20 24H24L22 34L28 24H24L26 14H24Z" 
+                                <path
+                                    d="M24 14L20 24H24L22 34L28 24H24L26 14H24Z"
                                     fill="#00F0FF"
                                     style={{
                                         filter: 'drop-shadow(0 0 6px #00F0FF) drop-shadow(0 0 12px rgba(0, 240, 255, 0.8))'
@@ -604,9 +603,9 @@ export default function Home() {
                             <h3 style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, color: 'var(--text-main)' }}>
                                 {uploading ? 'Uploading to the edge…' : 'Drop image or video here'}
                             </h3>
-                            <p style={{ 
-                                color: 'var(--text-muted)', 
-                                opacity: 0.6, 
+                            <p style={{
+                                color: 'var(--text-muted)',
+                                opacity: 0.6,
                                 fontSize: '0.8rem',
                                 fontFamily: 'JetBrains Mono, monospace',
                                 letterSpacing: '0.05em'
@@ -696,24 +695,24 @@ export default function Home() {
                                 )}
 
                                 <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-                                    <a href={result.url} target="_blank" style={{ 
-                                        color: '#00F0FF', 
-                                        fontSize: '0.8rem', 
-                                        textDecoration: 'none', 
-                                        display: 'flex', 
-                                        alignItems: 'center', 
-                                        justifyContent: 'center', 
+                                    <a href={result.url} target="_blank" style={{
+                                        color: '#00F0FF',
+                                        fontSize: '0.8rem',
+                                        textDecoration: 'none',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
                                         gap: '4px',
                                         fontFamily: 'JetBrains Mono, monospace',
                                         textShadow: '0 0 10px rgba(0, 240, 255, 0.5)',
                                         transition: 'all 0.3s'
                                     }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.textShadow = '0 0 20px rgba(0, 240, 255, 0.8)';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.textShadow = '0 0 10px rgba(0, 240, 255, 0.5)';
-                                    }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.textShadow = '0 0 20px rgba(0, 240, 255, 0.8)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.textShadow = '0 0 10px rgba(0, 240, 255, 0.5)';
+                                        }}
                                     >
                                         View Live Link <ExternalLink size={12} />
                                     </a>
