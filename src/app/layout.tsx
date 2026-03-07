@@ -8,6 +8,7 @@ export const metadata: Metadata = {
 
 import { Analytics } from "@vercel/analytics/react"
 import Script from "next/script";
+import ClientLayout from "./ClientLayout";
 
 export default function RootLayout({
     children,
@@ -18,63 +19,9 @@ export default function RootLayout({
         <html lang="en">
             <body>
                 <Script src="https://telegram.org/js/telegram-web-app.js" strategy="beforeInteractive" />
-                {/* Decorative Technical Elements */}
-                <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    width: '100vw',
-                    height: '100vh',
-                    zIndex: -9,
-                    pointerEvents: 'none',
-                    overflow: 'hidden'
-                }}>
-                    {/* Top-left corner + icon */}
-                    <div style={{
-                        position: 'absolute',
-                        top: '5%',
-                        left: '5%',
-                        color: 'rgba(0, 240, 255, 0.15)',
-                        fontSize: '24px',
-                        fontFamily: 'monospace',
-                        fontWeight: 'bold'
-                    }}>+</div>
-
-                    {/* Top-right corner x icon */}
-                    <div style={{
-                        position: 'absolute',
-                        top: '5%',
-                        right: '5%',
-                        color: 'rgba(0, 240, 255, 0.15)',
-                        fontSize: '24px',
-                        fontFamily: 'monospace',
-                        fontWeight: 'bold'
-                    }}>×</div>
-
-                    {/* Bottom-left corner + icon */}
-                    <div style={{
-                        position: 'absolute',
-                        bottom: '5%',
-                        left: '5%',
-                        color: 'rgba(0, 240, 255, 0.15)',
-                        fontSize: '24px',
-                        fontFamily: 'monospace',
-                        fontWeight: 'bold'
-                    }}>+</div>
-
-                    {/* Bottom-right corner x icon */}
-                    <div style={{
-                        position: 'absolute',
-                        bottom: '5%',
-                        right: '5%',
-                        color: 'rgba(0, 240, 255, 0.15)',
-                        fontSize: '24px',
-                        fontFamily: 'monospace',
-                        fontWeight: 'bold'
-                    }}>×</div>
-                </div>
-
-                {children}
+                <ClientLayout>
+                    {children}
+                </ClientLayout>
                 <Analytics />
             </body>
         </html>

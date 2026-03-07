@@ -730,3 +730,60 @@ body::after {
   border-color: var(--border-cyan);
   box-shadow: 0 0 10px var(--glow-cyan);
 }
+
+/* Telegram Mini App Specific Overrides */
+.telegram-app .main-container {
+    padding-top: 4rem; /* Reduce top padding for smaller viewports */
+    padding-bottom: 2rem;
+}
+
+.telegram-app .hero {
+    margin-bottom: 1.5rem;
+}
+
+.telegram-app .hero h1 {
+    font-size: clamp(2rem, 8vw, 3rem); /* Significantly smaller headings */
+    margin-bottom: 1rem;
+}
+
+.telegram-app .hero p {
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+}
+
+.telegram-app .upload-card {
+    padding: 1.5rem;
+    border-radius: 20px;
+}
+
+.telegram-app .drop-zone {
+    padding: 2rem 1rem;
+}
+
+.telegram-app .features-grid {
+    margin-top: 3rem;
+    gap: 1.25rem;
+}
+
+.telegram-app .feature-card {
+    padding: 1.5rem;
+}
+
+.telegram-app .main-nav {
+    top: 0.5rem;
+    padding: 8px 16px;
+    gap: 20px;
+}
+
+/* Hide beta text full on Telegram to save vertical space */
+.telegram-app .beta-text-full {
+    display: none;
+}
+.telegram-app .beta-text-short {
+    display: inline !important;
+}
+
+/* Ensure the background grid is more subtle or hidden if it causes lag */
+.telegram-app body::after {
+    opacity: 0.5;
+}
