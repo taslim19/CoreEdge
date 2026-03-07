@@ -9,6 +9,7 @@ export interface TelegramUpdate {
   update_id: number;
   message?: {
     message_id: number;
+    date: number;
     from: {
       id: number;
       first_name: string;
@@ -178,7 +179,7 @@ export async function sendMessage(chatId: number | string, text: string, parseMo
   });
 
   const data = await response.json();
-  
+
   if (!data.ok) {
     throw new Error(`Telegram API error: ${data.description || 'Unknown error'}`);
   }

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { TelegramUpdate, sendMessage, sendMediaToChannel, sendLog, downloadTelegramFile } from '@/lib/telegram';
 import { uploadToR2, isR2Configured } from '@/lib/r2';
-import { saveImage, generateId, getStats, registerUser } from '@/lib/db';
+import { saveImage, generateId, getStats, registerUser, redisLog, getRecentLogs } from '@/lib/db';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import os from 'os';
@@ -35,6 +35,7 @@ export async function POST(req: NextRequest) {
             if (command === '/start' || command === '/help') {
                 if (command === '/start') {
                     await registerUser(from.id);
+                    await redisLog(`👤 New User: ${userLink} (${from.id})`);
                     await sendLog(`👤 <b>New User Started Bot</b>\n\nUser: ${userLink}\nID: ${from.id}`);
                 }
 
@@ -74,8 +75,50 @@ export async function POST(req: NextRequest) {
                 return new NextResponse('OK');
             }
 
+            if (command === '/ping') {
+                const msgDate = body.message.date;
+                const latency = Date.now() - (msgDate * 1000);
+
+                // Uptime calculation
+                const uptimeSeconds = process.uptime();
+                const days = Math.floor(uptimeSeconds / (24 * 3600));
+                const hours = Math.floor((uptimeSeconds % (24 * 3600)) / 3600);
+                const minutes = Math.floor((uptimeSeconds % 3600) / 60);
+                const seconds = Math.floor(uptimeSeconds % 60);
+
+                let uptimeStr = '';
+                if (days > 0) uptimeStr += `${days}d `;
+                if (hours > 0) uptimeStr += `${hours}h `;
+                if (minutes > 0) uptimeStr += `${minutes}m `;
+                uptimeStr += `${seconds}s`;
+
+                await sendMessage(chatId,
+                    `🏓 <b>Pong!</b>\n\n` +
+                    `📶 <b>Latency:</b> <code>${latency}ms</code>\n` +
+                    `🆙 <b>Uptime:</b> <code>${uptimeStr}</code>`,
+                    'HTML'
+                );
+                return new NextResponse('OK');
+            }
+
             // --- Admin Commands ---
             const isAdmin = process.env.ADMIN_ID && from.id.toString() === process.env.ADMIN_ID;
+
+            if (command === '/logs') {
+                if (!isAdmin) {
+                    await sendMessage(chatId, "❌ Unauthorized.");
+                    return new NextResponse('OK');
+                }
+
+                const logs = await getRecentLogs();
+                if (logs.length === 0) {
+                    await sendMessage(chatId, "🕒 <b>No recent logs found.</b>", 'HTML');
+                } else {
+                    const logText = logs.reverse().join('\n');
+                    await sendMessage(chatId, `📜 <b>Recent Bot Logs:</b>\n\n<pre>${logText}</pre>`, 'HTML');
+                }
+                return new NextResponse('OK');
+            }
 
             if (command === '/usage' || command === 'usage') {
                 if (!isAdmin) {
@@ -340,9 +383,11 @@ async function processFile(chatId: number, fileId: string, fileSize: number, mim
             'HTML'
         );
 
+        await redisLog(`📤 Upload: ${mimeType} (${(fileSize / 1024 / 1024).toFixed(2)}MB) by ${userLink}`);
         await sendLog(`📤 <b>New Bot Upload</b>\n\nUser: ${userLink}\nType: ${mimeType}\nSize: ${(fileSize / 1024 / 1024).toFixed(2)} MB\nStorage: ${storageType === 'r2' ? 'R2' : 'Telegram'}\nLink: ${publicUrl}`);
     } catch (error) {
         console.error('Processing error:', error);
+        await redisLog(`❌ Error: ${error} (User: ${userLink})`);
         await sendLog(`❌ <b>Upload Processing Error</b>\n\nUser: ${userLink}\nError: ${error}`);
         await sendMessage(chatId, "❌ Failed to process your image. Please try again later.");
     }

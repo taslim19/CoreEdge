@@ -29,6 +29,7 @@ export default function Home() {
     const [isHistoryOpen, setIsHistoryOpen] = useState(false);
     const [showToast, setShowToast] = useState(false);
     const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+    const [isTelegram, setIsTelegram] = useState(false);
 
     // Load history and theme from localStorage
     useEffect(() => {
@@ -44,6 +45,11 @@ export default function Home() {
         } else {
             // Default to dark if no theme is saved
             document.documentElement.setAttribute('data-theme', 'dark');
+        }
+
+        // Detect Telegram environment
+        if (typeof window !== 'undefined' && (window as any).Telegram?.WebApp?.initData) {
+            setIsTelegram(true);
         }
     }, []);
 
@@ -412,80 +418,82 @@ export default function Home() {
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.5 }}
                     >
-                        <div style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            gap: '1rem',
-                            marginBottom: '2rem'
-                        }}>
+                        {isTelegram && (
                             <div style={{
-                                background: 'rgba(0, 240, 255, 0.1)',
-                                padding: '8px 16px',
-                                borderRadius: '100px',
-                                display: 'inline-flex',
+                                display: 'flex',
+                                flexDirection: 'column',
                                 alignItems: 'center',
-                                gap: '8px',
-                                border: '1px solid rgba(0, 240, 255, 0.2)',
-                                color: '#00F0FF',
-                                fontSize: '0.85rem',
-                                fontWeight: '600',
-                                fontFamily: 'JetBrains Mono, monospace'
+                                gap: '1rem',
+                                marginBottom: '2rem'
                             }}>
-                                <Zap size={14} fill="#00F0FF" color="#00F0FF" />
-                                <span>Now powered by Upstash & Telegram</span>
-                            </div>
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: 0.3, duration: 0.5 }}
-                                className="cyber-pulse"
-                                style={{
+                                <div style={{
                                     background: 'rgba(0, 240, 255, 0.1)',
-                                    padding: '10px 20px',
+                                    padding: '8px 16px',
                                     borderRadius: '100px',
                                     display: 'inline-flex',
                                     alignItems: 'center',
                                     gap: '8px',
-                                    border: '1px solid #00F0FF',
+                                    border: '1px solid rgba(0, 240, 255, 0.2)',
                                     color: '#00F0FF',
-                                    fontSize: '0.9rem',
-                                    fontWeight: '700',
-                                    boxShadow: '0 0 8px rgba(0, 240, 255, 0.2)',
-                                    fontFamily: 'Inter, sans-serif'
-                                }}
-                            >
-                                <span style={{
-                                    background: '#00F0FF',
-                                    color: '#000',
-                                    padding: '2px 8px',
-                                    borderRadius: '12px',
-                                    fontSize: '0.75rem',
-                                    fontWeight: '800',
-                                    letterSpacing: '0.5px',
-                                    textTransform: 'uppercase',
-                                    boxShadow: '0 0 10px rgba(0, 240, 255, 0.5)'
-                                }}>BETA</span>
-                                <span className="beta-text-full">API v2 is now available with Authentication & API Keys!</span>
-                                <span className="beta-text-short" style={{ display: 'none' }}>API v2 Available!</span>
-                                <Link
-                                    href="/dashboard"
-                                    className="get-started-link"
+                                    fontSize: '0.85rem',
+                                    fontWeight: '600',
+                                    fontFamily: 'JetBrains Mono, monospace'
+                                }}>
+                                    <Zap size={14} fill="#00F0FF" color="#00F0FF" />
+                                    <span>Now powered by Upstash & Telegram</span>
+                                </div>
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: 0.3, duration: 0.5 }}
+                                    className="cyber-pulse"
                                     style={{
-                                        color: '#00F0FF',
-                                        textDecoration: 'underline',
-                                        fontWeight: '600',
-                                        marginLeft: '4px',
-                                        textShadow: '0 0 10px rgba(0, 240, 255, 0.5)',
+                                        background: 'rgba(0, 240, 255, 0.1)',
+                                        padding: '10px 20px',
+                                        borderRadius: '100px',
                                         display: 'inline-flex',
                                         alignItems: 'center',
-                                        gap: '4px'
+                                        gap: '8px',
+                                        border: '1px solid #00F0FF',
+                                        color: '#00F0FF',
+                                        fontSize: '0.9rem',
+                                        fontWeight: '700',
+                                        boxShadow: '0 0 8px rgba(0, 240, 255, 0.2)',
+                                        fontFamily: 'Inter, sans-serif'
                                     }}
                                 >
-                                    Get Started <span className="get-started-arrow">→</span>
-                                </Link>
-                            </motion.div>
-                        </div>
+                                    <span style={{
+                                        background: '#00F0FF',
+                                        color: '#000',
+                                        padding: '2px 8px',
+                                        borderRadius: '12px',
+                                        fontSize: '0.75rem',
+                                        fontWeight: '800',
+                                        letterSpacing: '0.5px',
+                                        textTransform: 'uppercase',
+                                        boxShadow: '0 0 10px rgba(0, 240, 255, 0.5)'
+                                    }}>BETA</span>
+                                    <span className="beta-text-full">API v2 is now available with Authentication & API Keys!</span>
+                                    <span className="beta-text-short" style={{ display: 'none' }}>API v2 Available!</span>
+                                    <Link
+                                        href="/dashboard"
+                                        className="get-started-link"
+                                        style={{
+                                            color: '#00F0FF',
+                                            textDecoration: 'underline',
+                                            fontWeight: '600',
+                                            marginLeft: '4px',
+                                            textShadow: '0 0 10px rgba(0, 240, 255, 0.5)',
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            gap: '4px'
+                                        }}
+                                    >
+                                        Get Started <span className="get-started-arrow">→</span>
+                                    </Link>
+                                </motion.div>
+                            </div>
+                        )}
                     </motion.div>
 
                     <motion.h1

@@ -263,7 +263,7 @@ body::after {
   }
 
   .main-container {
-    padding: 5.5rem 1rem 3rem;
+    padding: 6rem 1rem 3rem;
   }
 
   .hero h1 {
@@ -788,6 +788,8 @@ body::after {
 
 .telegram-app .hero {
   margin-bottom: 1.5rem;
+  margin-top: -1.5rem;
+  /* Pull up a bit on Telegram to save vertical space */
 }
 
 .telegram-app .hero h1 {

@@ -173,6 +173,30 @@ export async function registerUser(userId: string | number) {
     }
 }
 
+/**
+ * Store a rolling log of recent activity in Redis
+ */
+export async function redisLog(text: string) {
+    if (useCloud() && redis) {
+        const timestamp = new Date().toLocaleString('en-GB', { timeZone: 'Asia/Kolkata' });
+        const logEntry = `[${timestamp}] ${text}`;
+        const pipeline = redis.pipeline();
+        pipeline.lpush('bot:logs', logEntry);
+        pipeline.ltrim('bot:logs', 0, 19); // Keep last 20
+        await pipeline.exec();
+    }
+}
+
+/**
+ * Get recent logs from Redis
+ */
+export async function getRecentLogs(): Promise<string[]> {
+    if (useCloud() && redis) {
+        return await redis.lrange('bot:logs', 0, -1);
+    }
+    return [];
+}
+
 // ==================== V2: User & API Key Management ====================
 
 export interface User {
