@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
                     const totalMem = os.totalmem() / (1024 ** 3); // in GB
                     const freeMem = os.freemem() / (1024 ** 3);
                     const usedMem = totalMem - freeMem;
-                    
+
                     // Disk space 
                     const stat = await fs.statfs(process.cwd());
                     const totalDisk = (stat.blocks * stat.bsize) / (1024 ** 3);
@@ -96,8 +96,8 @@ export async function POST(req: NextRequest) {
 
                     await sendMessage(chatId,
                         `🖥️ <b>Server Usage</b>\n\n` +
-                        `🧠 <b>RAM:</b> ${usedMem.toFixed(2)} GB / ${totalMem.toFixed(2)} GB (${((usedMem/totalMem)*100).toFixed(1)}%)\n` +
-                        `💽 <b>Disk:</b> ${usedDisk.toFixed(2)} GB / ${totalDisk.toFixed(2)} GB (${((usedDisk/totalDisk)*100).toFixed(1)}%)`,
+                        `🧠 <b>RAM:</b> ${usedMem.toFixed(2)} GB / ${totalMem.toFixed(2)} GB (${((usedMem / totalMem) * 100).toFixed(1)}%)\n` +
+                        `💽 <b>Disk:</b> ${usedDisk.toFixed(2)} GB / ${totalDisk.toFixed(2)} GB (${((usedDisk / totalDisk) * 100).toFixed(1)}%)`,
                         'HTML'
                     );
                 } catch (e: any) {
@@ -111,11 +111,11 @@ export async function POST(req: NextRequest) {
                     await sendMessage(chatId, "❌ Unauthorized.");
                     return new NextResponse('OK');
                 }
-                
+
                 const cmd = text.slice(command.length + (text.startsWith('/') ? 1 : 0)).trim();
                 if (!cmd) {
-                     await sendMessage(chatId, "❌ Please provide a command: `/sh echo hi`", 'Markdown');
-                     return new NextResponse('OK');
+                    await sendMessage(chatId, "❌ Please provide a command: `/sh echo hi`", 'Markdown');
+                    return new NextResponse('OK');
                 }
 
                 try {
@@ -132,39 +132,54 @@ export async function POST(req: NextRequest) {
             }
 
             if (command === '/eval' || command === 'eval') {
-                 if (!isAdmin) {
+                if (!isAdmin) {
                     await sendMessage(chatId, "❌ Unauthorized.");
                     return new NextResponse('OK');
                 }
-                
+
                 let code = text.slice(command.length + (text.startsWith('/') ? 1 : 0)).trim();
                 if (!code) {
-                     await sendMessage(chatId, "❌ Please provide Python code: `/eval print('hello')`", 'Markdown');
-                     return new NextResponse('OK');
+                    await sendMessage(chatId, "❌ Please provide code: `/eval print('hello')`", 'Markdown');
+                    return new NextResponse('OK');
                 }
 
-                // Remove markdown code block formatting if present
+                // Determine language from markdown block
+                let isPython = false;
                 if (code.startsWith('```python') || code.startsWith('```py')) {
+                    isPython = true;
                     code = code.replace(/^```python\n?|^```py\n?/, '').replace(/```$/, '');
+                } else if (code.startsWith('```ts') || code.startsWith('```typescript') || code.startsWith('```js') || code.startsWith('```javascript')) {
+                    isPython = false;
+                    code = code.replace(/^```(ts|typescript|js|javascript)\n?/, '').replace(/```$/, '');
                 } else if (code.startsWith('```')) {
+                    // Default to Typescript for generic markdown block
+                    isPython = false;
                     code = code.replace(/^```\n?/, '').replace(/```$/, '');
+                } else {
+                    // No markdown block provided, default to TS
+                    isPython = false;
                 }
 
-                const tmpFile = `/tmp/eval_${crypto.randomBytes(8).toString('hex')}.py`;
+                const fileExt = isPython ? 'py' : 'ts';
                 try {
-                    // Need to import os natively for windows it will be in temp 
                     const tmpDir = os.tmpdir();
-                    const winTmpFile = `${tmpDir}/eval_${crypto.randomBytes(8).toString('hex')}.py`;
+                    const winTmpFile = `${tmpDir}/eval_${crypto.randomBytes(8).toString('hex')}.${fileExt}`;
                     await fs.writeFile(winTmpFile, code);
-                    const { stdout, stderr } = await execAsync(`python "${winTmpFile}"`);
+
+                    const rawExecCommand = isPython
+                        ? `python3 "${winTmpFile}"`
+                        : `npx tsx "${winTmpFile}"`;
+
+                    const { stdout, stderr } = await execAsync(rawExecCommand);
                     const output = stdout || stderr || 'Code executed with no output.';
                     const safeOutput = output.length > 4000 ? output.substring(0, 4000) + '... (truncated)' : output;
-                    await sendMessage(chatId, `<b>Output:</b>\n<pre>${safeOutput}</pre>`, 'HTML');
+                    await sendMessage(chatId, `<b>Output (${fileExt}):</b>\n<pre>${safeOutput}</pre>`, 'HTML');
+
                     // Cleanup
-                    await fs.unlink(winTmpFile).catch(() => {});
+                    await fs.unlink(winTmpFile).catch(() => { });
                 } catch (e: any) {
-                     const errStr = e.message.length > 4000 ? e.message.substring(0, 4000) + '...' : e.message;
-                     await sendMessage(chatId, `❌ Error:\n<pre>${errStr}</pre>`, 'HTML');
+                    const errStr = e.message.length > 4000 ? e.message.substring(0, 4000) + '...' : e.message;
+                    await sendMessage(chatId, `❌ Error:\n<pre>${errStr}</pre>`, 'HTML');
                 }
                 return new NextResponse('OK');
             }
