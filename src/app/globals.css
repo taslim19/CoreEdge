@@ -207,6 +207,7 @@ body::after {
   padding: 0 2rem;
   z-index: 10;
   position: relative;
+  width: 100%;
 }
 
 .hero-section {
@@ -216,7 +217,8 @@ body::after {
   justify-content: center;
   min-height: 100vh;
   width: 100%;
-  padding: 6rem 0;
+  padding: 2rem 0;
+  /* Reduced from 6rem to avoid displacement */
 }
 
 /* Mobile Responsive Styles */
@@ -273,7 +275,7 @@ body::after {
   }
 
   .main-container {
-    padding: 6rem 1rem 3rem;
+    padding: 0 1rem;
   }
 
   .hero h1 {
@@ -425,7 +427,8 @@ body::after {
   color: var(--text-main);
 }
 
-.hero h1 .cyber-glow {
+.hero h1 .cyber-glow,
+.hero h1 .title-accent {
   background: linear-gradient(to right, var(--text-main), var(--accent-cyan));
   -webkit-background-clip: text;
   background-clip: text;
