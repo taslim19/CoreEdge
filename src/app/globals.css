@@ -204,9 +204,19 @@ body::after {
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
-  padding: 8rem 2rem 4rem;
+  padding: 0 2rem;
   z-index: 10;
   position: relative;
+}
+
+.hero-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100%;
+  padding: 6rem 0;
 }
 
 /* Mobile Responsive Styles */
@@ -781,9 +791,13 @@ body::after {
 
 /* Telegram Mini App Specific Overrides */
 .telegram-app .main-container {
-  padding-top: 4rem;
   /* Reduce top padding for smaller viewports */
   padding-bottom: 2rem;
+}
+
+.telegram-app .hero-section {
+  padding-top: 4rem;
+  min-height: auto;
 }
 
 .telegram-app .hero {
