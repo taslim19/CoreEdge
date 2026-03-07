@@ -11,14 +11,14 @@
   --text-main: #ffffff;
   --text-muted: #8892b0;
   --text-cyan: #00F0FF;
-  
+
   /* Glassmorphism */
   --panel-bg: rgba(10, 25, 47, 0.4);
   --border-color: rgba(0, 240, 255, 0.2);
   --border-cyan: #00F0FF;
   --glow-cyan: rgba(0, 240, 255, 0.2);
   --glow-cyan-intense: rgba(0, 240, 255, 0.4);
-  
+
   /* Utilities */
   --input-bg: rgba(0, 0, 0, 0.5);
   --card-subtext: rgba(136, 146, 176, 0.6);
@@ -107,7 +107,7 @@ body::before {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: 
+  background:
     /* Cyan glow - top right */
     radial-gradient(circle at 90% 10%, rgba(6, 182, 212, 0.04) 0%, transparent 60%),
     /* Indigo glow - center left */
@@ -123,7 +123,7 @@ body::before {
 
 [data-theme="light"] body::before {
   opacity: 0.3;
-  background: 
+  background:
     radial-gradient(circle at 90% 10%, rgba(0, 153, 204, 0.02) 0%, transparent 60%),
     radial-gradient(circle at 10% 50%, rgba(108, 117, 125, 0.02) 0%, transparent 60%),
     radial-gradient(circle at 90% 90%, rgba(0, 153, 204, 0.02) 0%, transparent 60%);
@@ -137,7 +137,7 @@ body::after {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-image: 
+  background-image:
     /* Fading grid - most visible at bottom */
     linear-gradient(rgba(0, 240, 255, 0.1) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0, 240, 255, 0.1) 1px, transparent 1px),
@@ -155,7 +155,7 @@ body::after {
 }
 
 [data-theme="light"] body::after {
-  background-image: 
+  background-image:
     linear-gradient(rgba(0, 153, 204, 0.08) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0, 153, 204, 0.08) 1px, transparent 1px),
     url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E");
@@ -276,7 +276,7 @@ body::after {
     padding: 3rem 0 1.5rem;
   }
 
-  .footer > div {
+  .footer>div {
     flex-wrap: wrap;
     gap: 12px !important;
   }
@@ -358,7 +358,7 @@ body::after {
     padding: 1.5rem 1rem;
   }
 
-  .footer > div {
+  .footer>div {
     flex-direction: column;
     gap: 8px !important;
   }
@@ -399,10 +399,13 @@ body::after {
 
 /* Pulsing animation for logo icon */
 @keyframes pulse-logo {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
     filter: drop-shadow(0 0 8px #00F0FF);
   }
+
   50% {
     opacity: 0.8;
     filter: drop-shadow(0 0 16px #00F0FF) drop-shadow(0 0 24px rgba(0, 240, 255, 0.5));
@@ -418,6 +421,7 @@ body::after {
   0% {
     transform: translateX(0);
   }
+
   100% {
     transform: translateX(4px);
   }
@@ -441,7 +445,7 @@ body::after {
   border: 1px solid var(--border-color);
   border-radius: 24px;
   padding: 2rem;
-  box-shadow: 
+  box-shadow:
     0 0 10px rgba(0, 240, 255, 0.2),
     0 25px 50px -12px var(--card-shadow);
   transition: all 0.3s ease;
@@ -456,7 +460,7 @@ body::after {
 
 .upload-card:hover {
   border-color: var(--border-cyan);
-  box-shadow: 
+  box-shadow:
     0 0 15px rgba(0, 240, 255, 0.3),
     0 25px 50px -12px var(--card-shadow);
 }
@@ -500,9 +504,11 @@ body::after {
     top: -2px;
     opacity: 0.6;
   }
+
   50% {
     opacity: 1;
   }
+
   100% {
     top: 100%;
     opacity: 0.6;
@@ -513,7 +519,7 @@ body::after {
 .drop-zone.active {
   border-color: var(--border-cyan);
   background: var(--accent-cyan-subtle);
-  box-shadow: 
+  box-shadow:
     inset 0 0 20px var(--glow-cyan),
     0 0 20px var(--glow-cyan);
 }
@@ -575,9 +581,12 @@ body::after {
 }
 
 @keyframes pulse-glow {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 0 10px var(--accent-cyan), 0 0 20px var(--accent-cyan);
   }
+
   50% {
     box-shadow: 0 0 20px var(--accent-cyan), 0 0 30px var(--accent-cyan), 0 0 40px var(--accent-cyan);
   }
@@ -696,10 +705,13 @@ body::after {
 
 /* Pulse Animation for Beta Badge */
 @keyframes pulse-cyan {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 0 10px var(--accent-cyan), 0 0 20px var(--accent-cyan);
     opacity: 1;
   }
+
   50% {
     box-shadow: 0 0 20px var(--accent-cyan), 0 0 30px var(--accent-cyan), 0 0 40px var(--accent-cyan);
     opacity: 0.9;
@@ -733,57 +745,91 @@ body::after {
 
 /* Telegram Mini App Specific Overrides */
 .telegram-app .main-container {
-    padding-top: 4rem; /* Reduce top padding for smaller viewports */
-    padding-bottom: 2rem;
+  padding-top: 4rem;
+  /* Reduce top padding for smaller viewports */
+  padding-bottom: 2rem;
 }
 
 .telegram-app .hero {
-    margin-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .telegram-app .hero h1 {
-    font-size: clamp(2rem, 8vw, 3rem); /* Significantly smaller headings */
-    margin-bottom: 1rem;
+  font-size: clamp(2rem, 8vw, 3rem);
+  /* Significantly smaller headings */
+  margin-bottom: 1rem;
 }
 
 .telegram-app .hero p {
-    font-size: 0.9rem;
-    letter-spacing: 0.1em;
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
 }
 
 .telegram-app .upload-card {
-    padding: 1.5rem;
-    border-radius: 20px;
+  padding: 1.5rem;
+  border-radius: 20px;
 }
 
 .telegram-app .drop-zone {
-    padding: 2rem 1rem;
+  padding: 2rem 1rem;
 }
 
 .telegram-app .features-grid {
-    margin-top: 3rem;
-    gap: 1.25rem;
+  margin-top: 3rem;
+  gap: 1.25rem;
 }
 
 .telegram-app .feature-card {
-    padding: 1.5rem;
+  padding: 1.5rem;
 }
 
 .telegram-app .main-nav {
-    top: 0.5rem;
-    padding: 8px 16px;
-    gap: 20px;
+  top: 0.5rem;
+  padding: 8px 16px;
+  gap: 20px;
 }
 
 /* Hide beta text full on Telegram to save vertical space */
 .telegram-app .beta-text-full {
-    display: none;
+  display: none;
 }
+
 .telegram-app .beta-text-short {
-    display: inline !important;
+  display: inline !important;
 }
 
 /* Ensure the background grid is more subtle or hidden if it causes lag */
 .telegram-app body::after {
-    opacity: 0.5;
+  opacity: 0.5;
+}
+
+/* Dashboard Refinements */
+.telegram-app .dashboard-container {
+  padding: 1rem !important;
+}
+
+.telegram-app .dashboard-header {
+  margin-bottom: 1rem !important;
+  padding-bottom: 1rem !important;
+}
+
+.telegram-app .dashboard-header h1 {
+  font-size: 1.5rem !important;
+}
+
+.telegram-app .dashboard-tabs {
+  gap: 0.25rem !important;
+  margin-bottom: 1rem !important;
+  overflow-x: auto !important;
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+.telegram-app .dashboard-tabs::-webkit-scrollbar {
+  display: none !important;
+}
+
+.telegram-app .dashboard-tabs button {
+  padding: 0.5rem 0.75rem !important;
+  font-size: 0.7rem !important;
 }

@@ -37,6 +37,8 @@ interface Webhook {
 export default function Dashboard() {
     const router = useRouter();
     const [user, setUser] = useState<User | null>(null);
+    const [tgUser, setTgUser] = useState<any>(null);
+    const [isTelegram, setIsTelegram] = useState(false);
     const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
     const [webhooks, setWebhooks] = useState<Webhook[]>([]);
     const [loading, setLoading] = useState(true);
@@ -60,6 +62,8 @@ export default function Dashboard() {
             if (typeof window !== 'undefined' && (window as any).Telegram?.WebApp?.initDataUnsafe?.user) {
                 const tgApp = (window as any).Telegram.WebApp;
                 tgApp.ready();
+                setIsTelegram(true);
+                setTgUser(tgApp.initDataUnsafe.user);
 
                 try {
                     const tgRes = await fetch('/api/v2/auth/telegram', {
@@ -211,15 +215,18 @@ export default function Dashboard() {
     }
 
     return (
-        <div style={{
-            minHeight: '100vh',
-            padding: '2rem',
-            maxWidth: '1200px',
-            margin: '0 auto',
-            background: '#000000',
-            position: 'relative',
-            fontFamily: "'Inter', sans-serif"
-        }}>
+        <div
+            className={`dashboard-container ${isTelegram ? 'telegram-app' : ''}`}
+            style={{
+                minHeight: '100vh',
+                padding: isTelegram ? '1rem' : '2rem',
+                maxWidth: isTelegram ? '100%' : '1200px',
+                margin: '0 auto',
+                background: '#000000',
+                position: 'relative',
+                fontFamily: "'Inter', sans-serif"
+            }}
+        >
             {/* Decorative Technical Elements */}
             <div style={{
                 position: 'fixed',
@@ -265,41 +272,64 @@ export default function Dashboard() {
                 zIndex: 0,
                 pointerEvents: 'none'
             }}>×</div>
-            <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '2rem',
-                paddingBottom: '1.5rem',
-                borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-                position: 'relative',
-                zIndex: 1
-            }}>
-                <div>
-                    <h1 style={{
-                        fontSize: '2rem',
-                        fontWeight: 900,
-                        marginBottom: '0.5rem',
-                        color: '#FFFFFF',
-                        fontFamily: "'Inter', sans-serif"
-                    }}>Dashboard</h1>
-                    <p style={{
-                        color: 'rgba(255, 255, 255, 0.6)',
-                        fontFamily: "'Inter', sans-serif"
-                    }}>{user.email}</p>
+            <div
+                className="dashboard-header"
+                style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: isTelegram ? '1rem' : '2rem',
+                    paddingBottom: isTelegram ? '1rem' : '1.5rem',
+                    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                    position: 'relative',
+                    zIndex: 1
+                }}
+            >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    {isTelegram && tgUser?.photo_url && (
+                        <div style={{
+                            width: '40px',
+                            height: '40px',
+                            borderRadius: '50%',
+                            overflow: 'hidden',
+                            border: '2px solid #00F0FF',
+                            boxShadow: '0 0 10px rgba(0, 240, 255, 0.3)'
+                        }}>
+                            <img src={tgUser.photo_url} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        </div>
+                    )}
+                    <div>
+                        <h1 style={{
+                            fontSize: isTelegram ? '1.5rem' : '2rem',
+                            fontWeight: 900,
+                            marginBottom: '0.2rem',
+                            color: '#FFFFFF',
+                            fontFamily: "'Inter', sans-serif"
+                        }}>
+                            {isTelegram && tgUser ? (tgUser.first_name || 'Dashboard') : 'Dashboard'}
+                        </h1>
+                        <p style={{
+                            color: 'rgba(255, 255, 255, 0.6)',
+                            fontFamily: "'Inter', sans-serif",
+                            fontSize: isTelegram ? '0.8rem' : '1rem'
+                        }}>
+                            {isTelegram && tgUser ? `@${tgUser.username || tgUser.id}` : user.email}
+                        </p>
+                    </div>
                 </div>
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: isTelegram ? '0.5rem' : '1rem', alignItems: 'center' }}>
                     <Link href="/" style={{
-                        padding: '0.5rem 1rem',
+                        padding: isTelegram ? '0.4rem 0.8rem' : '0.5rem 1rem',
                         borderRadius: '8px',
                         background: 'transparent',
                         border: '1px solid rgba(255, 255, 255, 0.2)',
                         textDecoration: 'none',
                         color: 'rgba(255, 255, 255, 0.5)',
                         fontFamily: "'Inter', sans-serif",
-                        fontSize: '0.9rem',
+                        fontSize: isTelegram ? '0.75rem' : '0.9rem',
                         transition: 'all 0.3s',
-                        opacity: 0.5
+                        opacity: 0.5,
+                        display: isTelegram ? 'none' : 'block' // Hide Home on Telegram Dashboard to save space
                     }}
                         onMouseEnter={(e) => {
                             e.currentTarget.style.opacity = '1';
@@ -315,7 +345,7 @@ export default function Dashboard() {
                         }}
                     >Home</Link>
                     <button onClick={handleLogout} style={{
-                        padding: '0.5rem 1rem',
+                        padding: isTelegram ? '0.4rem 0.8rem' : '0.5rem 1rem',
                         borderRadius: '8px',
                         background: 'transparent',
                         border: '1px solid rgba(255, 255, 255, 0.2)',
@@ -323,9 +353,9 @@ export default function Dashboard() {
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '0.5rem',
+                        gap: '0.4rem',
                         fontFamily: "'Inter', sans-serif",
-                        fontSize: '0.9rem',
+                        fontSize: isTelegram ? '0.75rem' : '0.9rem',
                         transition: 'all 0.3s',
                         opacity: 0.5
                     }}
@@ -348,20 +378,25 @@ export default function Dashboard() {
                 </div>
             </div>
 
-            <div style={{
-                display: 'flex',
-                gap: '0.5rem',
-                marginBottom: '2rem',
-                borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-                position: 'relative',
-                zIndex: 1
-            }}>
+            <div
+                className="dashboard-tabs"
+                style={{
+                    display: 'flex',
+                    gap: isTelegram ? '0.25rem' : '0.5rem',
+                    marginBottom: isTelegram ? '1rem' : '2rem',
+                    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                    position: 'relative',
+                    zIndex: 1,
+                    overflowX: isTelegram ? 'auto' : 'visible',
+                    scrollbarWidth: 'none'
+                }}
+            >
                 {(['keys', 'webhooks', 'settings'] as const).map(tab => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
                         style={{
-                            padding: '0.75rem 1.5rem',
+                            padding: isTelegram ? '0.5rem 1rem' : '0.75rem 1.5rem',
                             border: 'none',
                             background: 'transparent',
                             color: activeTab === tab ? '#00F0FF' : 'rgba(255, 255, 255, 0.4)',
@@ -369,12 +404,13 @@ export default function Dashboard() {
                             textTransform: 'uppercase',
                             fontWeight: activeTab === tab ? 700 : 400,
                             fontFamily: "'JetBrains Mono', monospace",
-                            fontSize: '0.85rem',
+                            fontSize: isTelegram ? '0.75rem' : '0.85rem',
                             letterSpacing: '0.1em',
                             position: 'relative',
                             transition: 'all 0.3s',
                             borderBottom: activeTab === tab ? '2px solid #00F0FF' : '2px solid transparent',
-                            boxShadow: activeTab === tab ? '0 4px 12px rgba(0, 240, 255, 0.3)' : 'none'
+                            boxShadow: activeTab === tab ? '0 4px 12px rgba(0, 240, 255, 0.2)' : 'none',
+                            whiteSpace: 'nowrap'
                         }}
                         onMouseEnter={(e) => {
                             if (activeTab !== tab) {
