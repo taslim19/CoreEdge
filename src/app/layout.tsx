@@ -7,6 +7,7 @@ export const metadata: Metadata = {
 };
 
 import { Analytics } from "@vercel/analytics/react"
+import Script from "next/script";
 
 export default function RootLayout({
     children,
@@ -16,6 +17,7 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body>
+                <Script src="https://telegram.org/js/telegram-web-app.js" strategy="beforeInteractive" />
                 {/* Decorative Technical Elements */}
                 <div style={{
                     position: 'fixed',
@@ -37,7 +39,7 @@ export default function RootLayout({
                         fontFamily: 'monospace',
                         fontWeight: 'bold'
                     }}>+</div>
-                    
+
                     {/* Top-right corner x icon */}
                     <div style={{
                         position: 'absolute',
@@ -48,7 +50,7 @@ export default function RootLayout({
                         fontFamily: 'monospace',
                         fontWeight: 'bold'
                     }}>×</div>
-                    
+
                     {/* Bottom-left corner + icon */}
                     <div style={{
                         position: 'absolute',
@@ -59,7 +61,7 @@ export default function RootLayout({
                         fontFamily: 'monospace',
                         fontWeight: 'bold'
                     }}>+</div>
-                    
+
                     {/* Bottom-right corner x icon */}
                     <div style={{
                         position: 'absolute',
@@ -71,7 +73,7 @@ export default function RootLayout({
                         fontWeight: 'bold'
                     }}>×</div>
                 </div>
-                
+
                 {children}
                 <Analytics />
             </body>
