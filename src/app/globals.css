@@ -5,29 +5,65 @@
   --bg-color: #000000;
   --bg-charcoal: #050505;
   --accent-cyan: #00F0FF;
-  --accent-cyan-glow: rgba(0, 240, 255, 0.3);
-  --accent-cyan-subtle: rgba(0, 240, 255, 0.1);
-  --accent-midnight: #0A192F;
+  --accent-cyan-glow: rgba(0, 240, 255, 0.4);
+  --accent-cyan-subtle: rgba(0, 240, 255, 0.05);
   --text-main: #ffffff;
-  --text-muted: #8892b0;
-  --text-cyan: #00F0FF;
+  --text-muted: rgba(255, 255, 255, 0.6);
+  --text-dim: rgba(255, 255, 255, 0.3);
 
-  /* Glassmorphism */
-  --panel-bg: rgba(10, 25, 47, 0.4);
-  --border-color: rgba(0, 240, 255, 0.2);
-  --border-cyan: #00F0FF;
-  --glow-cyan: rgba(0, 240, 255, 0.2);
-  --glow-cyan-intense: rgba(0, 240, 255, 0.4);
+  /* Glassmorphism Refined */
+  --panel-bg: rgba(255, 255, 255, 0.03);
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-bright: rgba(0, 240, 255, 0.2);
 
   /* Utilities */
-  --input-bg: rgba(0, 0, 0, 0.5);
-  --card-subtext: rgba(136, 146, 176, 0.6);
-  --history-item-bg: rgba(10, 25, 47, 0.3);
-  --toast-bg: rgba(0, 0, 0, 0.95);
-  --panel-header-bg: rgba(10, 25, 47, 0.6);
-  --code-text-color: #00F0FF;
-  --code-bg: #000000;
-  --card-shadow: rgba(0, 0, 0, 0.8);
+  --input-bg: rgba(255, 255, 255, 0.02);
+  --border-color: rgba(255, 255, 255, 0.1);
+  --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+}
+
+/* Animations */
+@keyframes neon-pulse {
+  0% {
+    box-shadow: 0 0 5px var(--accent-cyan-glow);
+  }
+
+  50% {
+    box-shadow: 0 0 20px var(--accent-cyan-glow);
+  }
+
+  100% {
+    box-shadow: 0 0 5px var(--accent-cyan-glow);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-panel:hover {
+  border-color: var(--glass-border-bright);
+  background: rgba(255, 255, 255, 0.07);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 240, 255, 0.1);
 }
 
 /* Dark Theme */

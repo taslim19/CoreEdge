@@ -196,6 +196,19 @@ export default function Dashboard() {
         }
     };
 
+    const deleteWebhook = async (id: string) => {
+        if (!confirm('Are you sure you want to delete this webhook?')) return;
+
+        try {
+            const res = await fetch(`/api/v2/webhooks/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                loadData();
+            }
+        } catch (error) {
+            console.error('Failed to delete webhook:', error);
+        }
+    };
+
     if (loading) {
         return (
             <div style={{
@@ -219,14 +232,36 @@ export default function Dashboard() {
             className={`dashboard-container ${isTelegram ? 'telegram-app' : ''}`}
             style={{
                 minHeight: '100vh',
-                padding: isTelegram ? '1rem' : '2rem',
-                maxWidth: isTelegram ? '100%' : '1200px',
+                padding: isTelegram ? '1rem' : '3rem 2rem',
+                maxWidth: '1200px',
                 margin: '0 auto',
                 background: '#000000',
                 position: 'relative',
-                fontFamily: "'Inter', sans-serif"
+                fontFamily: "'Inter', sans-serif",
+                color: '#FFFFFF'
             }}
         >
+            {/* Background Ambient Glows */}
+            <div style={{
+                position: 'fixed',
+                top: '-10%',
+                right: '-10%',
+                width: '40vw',
+                height: '40vw',
+                background: 'radial-gradient(circle, rgba(0, 240, 255, 0.05) 0%, transparent 70%)',
+                zIndex: 0,
+                pointerEvents: 'none'
+            }} />
+            <div style={{
+                position: 'fixed',
+                bottom: '-10%',
+                left: '-10%',
+                width: '40vw',
+                height: '40vw',
+                background: 'radial-gradient(circle, rgba(0, 240, 255, 0.03) 0%, transparent 70%)',
+                zIndex: 0,
+                pointerEvents: 'none'
+            }} />
             {/* Decorative Technical Elements */}
             <div style={{
                 position: 'fixed',
@@ -273,107 +308,128 @@ export default function Dashboard() {
                 pointerEvents: 'none'
             }}>×</div>
             <div
-                className="dashboard-header"
+                className="dashboard-header glass-panel"
                 style={{
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    marginBottom: isTelegram ? '1rem' : '2rem',
-                    paddingBottom: isTelegram ? '1rem' : '1.5rem',
-                    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                    marginBottom: isTelegram ? '1.5rem' : '3rem',
+                    padding: isTelegram ? '1rem' : '1.5rem 2rem',
                     position: 'relative',
-                    zIndex: 1
+                    zIndex: 1,
+                    border: '1px solid rgba(255, 255, 255, 0.05)',
+                    background: 'rgba(255, 255, 255, 0.02)',
+                    boxShadow: '0 4px 24px rgba(0, 0, 0, 0.4)'
                 }}
             >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    {isTelegram && tgUser?.photo_url && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: isTelegram ? '0.75rem' : '1.25rem' }}>
+                    <div style={{ position: 'relative' }}>
                         <div style={{
-                            width: '40px',
-                            height: '40px',
+                            width: isTelegram ? '44px' : '56px',
+                            height: isTelegram ? '44px' : '56px',
                             borderRadius: '50%',
                             overflow: 'hidden',
-                            border: '2px solid #00F0FF',
-                            boxShadow: '0 0 10px rgba(0, 240, 255, 0.3)'
+                            border: '2px solid rgba(0, 240, 255, 0.2)',
+                            background: 'rgba(255, 255, 255, 0.05)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
                         }}>
-                            <img src={tgUser.photo_url} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            {isTelegram && tgUser?.photo_url ? (
+                                <img src={tgUser.photo_url} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            ) : (
+                                <User size={isTelegram ? 20 : 24} color="rgba(255, 255, 255, 0.5)" />
+                            )}
                         </div>
-                    )}
+                        <div style={{
+                            position: 'absolute',
+                            bottom: '2px',
+                            right: '2px',
+                            width: '10px',
+                            height: '10px',
+                            background: '#00E676',
+                            borderRadius: '50%',
+                            border: '2px solid #000',
+                            boxShadow: '0 0 8px rgba(0, 230, 118, 0.5)'
+                        }} />
+                    </div>
                     <div>
                         <h1 style={{
-                            fontSize: isTelegram ? '1.5rem' : '2rem',
-                            fontWeight: 900,
-                            marginBottom: '0.2rem',
+                            fontSize: isTelegram ? '1.25rem' : '1.75rem',
+                            fontWeight: 800,
+                            letterSpacing: '-0.02em',
+                            marginBottom: '0',
                             color: '#FFFFFF',
                             fontFamily: "'Inter', sans-serif"
                         }}>
-                            {isTelegram && tgUser ? (tgUser.first_name || 'Dashboard') : 'Dashboard'}
+                            {isTelegram && tgUser ? (tgUser.first_name) : (user?.email?.split('@')[0] || 'Dashboard')}
                         </h1>
                         <p style={{
-                            color: 'rgba(255, 255, 255, 0.6)',
-                            fontFamily: "'Inter', sans-serif",
-                            fontSize: isTelegram ? '0.8rem' : '1rem'
+                            color: 'rgba(255, 255, 255, 0.4)',
+                            fontFamily: "'JetBrains Mono', monospace",
+                            fontSize: isTelegram ? '0.7rem' : '0.8rem',
+                            marginTop: '2px'
                         }}>
-                            {isTelegram && tgUser ? `@${tgUser.username || tgUser.id}` : user.email}
+                            {isTelegram && tgUser ? `@${tgUser.username || tgUser.id}` : (user?.role || 'User')}
                         </p>
                     </div>
                 </div>
-                <div style={{ display: 'flex', gap: isTelegram ? '0.5rem' : '1rem', alignItems: 'center' }}>
-                    <Link href="/" style={{
-                        padding: isTelegram ? '0.4rem 0.8rem' : '0.5rem 1rem',
-                        borderRadius: '8px',
-                        background: 'transparent',
-                        border: '1px solid rgba(255, 255, 255, 0.2)',
-                        textDecoration: 'none',
-                        color: 'rgba(255, 255, 255, 0.5)',
-                        fontFamily: "'Inter', sans-serif",
-                        fontSize: isTelegram ? '0.75rem' : '0.9rem',
-                        transition: 'all 0.3s',
-                        opacity: 0.5,
-                        display: isTelegram ? 'none' : 'block' // Hide Home on Telegram Dashboard to save space
-                    }}
+
+                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                    {!isTelegram && (
+                        <Link href="/" style={{
+                            width: '36px',
+                            height: '36px',
+                            borderRadius: '10px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            background: 'rgba(255, 255, 255, 0.03)',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            color: 'rgba(255, 255, 255, 0.6)',
+                            transition: 'all 0.2s ease',
+                            textDecoration: 'none'
+                        }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
+                                e.currentTarget.style.color = '#00F0FF';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
+                                e.currentTarget.style.color = 'rgba(255, 255, 255, 0.6)';
+                            }}
+                        >
+                            <Plus size={18} />
+                        </Link>
+                    )}
+                    <button
+                        onClick={handleLogout}
+                        title="Logout"
+                        style={{
+                            width: '36px',
+                            height: '36px',
+                            borderRadius: '10px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            background: 'rgba(255, 255, 255, 0.03)',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            color: 'rgba(255, 255, 255, 0.6)',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease'
+                        }}
                         onMouseEnter={(e) => {
-                            e.currentTarget.style.opacity = '1';
-                            e.currentTarget.style.borderColor = '#00F0FF';
-                            e.currentTarget.style.color = '#00F0FF';
-                            e.currentTarget.style.boxShadow = '0 0 8px rgba(0, 240, 255, 0.3)';
+                            e.currentTarget.style.background = 'rgba(255, 75, 43, 0.1)';
+                            e.currentTarget.style.color = '#FF4B2B';
+                            e.currentTarget.style.borderColor = 'rgba(255, 75, 43, 0.2)';
                         }}
                         onMouseLeave={(e) => {
-                            e.currentTarget.style.opacity = '0.5';
-                            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-                            e.currentTarget.style.color = 'rgba(255, 255, 255, 0.5)';
-                            e.currentTarget.style.boxShadow = 'none';
-                        }}
-                    >Home</Link>
-                    <button onClick={handleLogout} style={{
-                        padding: isTelegram ? '0.4rem 0.8rem' : '0.5rem 1rem',
-                        borderRadius: '8px',
-                        background: 'transparent',
-                        border: '1px solid rgba(255, 255, 255, 0.2)',
-                        color: 'rgba(255, 255, 255, 0.5)',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.4rem',
-                        fontFamily: "'Inter', sans-serif",
-                        fontSize: isTelegram ? '0.75rem' : '0.9rem',
-                        transition: 'all 0.3s',
-                        opacity: 0.5
-                    }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.opacity = '1';
-                            e.currentTarget.style.borderColor = '#00F0FF';
-                            e.currentTarget.style.color = '#00F0FF';
-                            e.currentTarget.style.boxShadow = '0 0 8px rgba(0, 240, 255, 0.3)';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.opacity = '0.5';
-                            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-                            e.currentTarget.style.color = 'rgba(255, 255, 255, 0.5)';
-                            e.currentTarget.style.boxShadow = 'none';
+                            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
+                            e.currentTarget.style.color = 'rgba(255, 255, 255, 0.6)';
+                            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
                         }}
                     >
-                        <LogOut size={16} />
-                        Logout
+                        <LogOut size={18} />
                     </button>
                 </div>
             </div>
@@ -382,13 +438,17 @@ export default function Dashboard() {
                 className="dashboard-tabs"
                 style={{
                     display: 'flex',
-                    gap: isTelegram ? '0.25rem' : '0.5rem',
-                    marginBottom: isTelegram ? '1rem' : '2rem',
-                    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                    gap: isTelegram ? '0.5rem' : '1.5rem',
+                    marginBottom: isTelegram ? '1.5rem' : '2.5rem',
+                    padding: '0.25rem',
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    borderRadius: '12px',
+                    width: 'fit-content',
                     position: 'relative',
                     zIndex: 1,
                     overflowX: isTelegram ? 'auto' : 'visible',
-                    scrollbarWidth: 'none'
+                    scrollbarWidth: 'none',
+                    border: '1px solid rgba(255, 255, 255, 0.05)'
                 }}
             >
                 {(['keys', 'webhooks', 'settings'] as const).map(tab => (
@@ -396,34 +456,52 @@ export default function Dashboard() {
                         key={tab}
                         onClick={() => setActiveTab(tab)}
                         style={{
-                            padding: isTelegram ? '0.5rem 1rem' : '0.75rem 1.5rem',
-                            border: 'none',
-                            background: 'transparent',
+                            padding: isTelegram ? '0.6rem 1rem' : '0.75rem 1.5rem',
+                            borderRadius: '10px',
+                            background: activeTab === tab ? 'rgba(0, 240, 255, 0.1)' : 'transparent',
                             color: activeTab === tab ? '#00F0FF' : 'rgba(255, 255, 255, 0.4)',
                             cursor: 'pointer',
                             textTransform: 'uppercase',
-                            fontWeight: activeTab === tab ? 700 : 400,
+                            fontWeight: 700,
                             fontFamily: "'JetBrains Mono', monospace",
-                            fontSize: isTelegram ? '0.75rem' : '0.85rem',
-                            letterSpacing: '0.1em',
-                            position: 'relative',
-                            transition: 'all 0.3s',
-                            borderBottom: activeTab === tab ? '2px solid #00F0FF' : '2px solid transparent',
-                            boxShadow: activeTab === tab ? '0 4px 12px rgba(0, 240, 255, 0.2)' : 'none',
-                            whiteSpace: 'nowrap'
-                        }}
-                        onMouseEnter={(e) => {
-                            if (activeTab !== tab) {
-                                e.currentTarget.style.color = 'rgba(255, 255, 255, 0.7)';
-                            }
-                        }}
-                        onMouseLeave={(e) => {
-                            if (activeTab !== tab) {
-                                e.currentTarget.style.color = 'rgba(255, 255, 255, 0.4)';
-                            }
+                            fontSize: isTelegram ? '0.7rem' : '0.8rem',
+                            letterSpacing: '0.05em',
+                            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            border: activeTab === tab ? '1px solid rgba(0, 240, 255, 0.2)' : '1px solid transparent',
+                            position: 'relative'
                         }}
                     >
+                        <div style={{
+                            width: '40px',
+                            height: '2px',
+                            background: '#00F0FF',
+                            position: 'absolute',
+                            bottom: '0',
+                            left: '50%',
+                            transform: activeTab === tab ? 'translateX(-50%) scaleX(1)' : 'translateX(-50%) scaleX(0)',
+                            opacity: activeTab === tab ? 1 : 0,
+                            transition: 'all 0.3s ease',
+                            borderRadius: '2px',
+                            boxShadow: '0 0 8px #00F0FF',
+                            display: 'none' // Hidden for now, using background pill instead
+                        }} />
                         {tab}
+                        {activeTab === tab && (
+                            <motion.div
+                                layoutId="tab-pill"
+                                style={{
+                                    position: 'absolute',
+                                    inset: 0,
+                                    background: 'rgba(0, 240, 255, 0.05)',
+                                    borderRadius: '10px',
+                                    zIndex: -1,
+                                    border: '1px solid rgba(0, 240, 255, 0.1)'
+                                }}
+                            />
+                        )}
                     </button>
                 ))}
             </div>
@@ -439,23 +517,30 @@ export default function Dashboard() {
                         <div style={{
                             display: 'flex',
                             justifyContent: 'space-between',
-                            alignItems: 'center',
-                            marginBottom: '1.5rem',
+                            alignItems: 'flex-end',
+                            marginBottom: '2rem',
                             position: 'relative',
-                            zIndex: 1
+                            zIndex: 1,
+                            padding: '0 0.5rem'
                         }}>
-                            <h2 style={{
-                                fontSize: '1.5rem',
-                                fontWeight: 700,
-                                color: '#FFFFFF',
-                                fontFamily: "'Inter', sans-serif"
-                            }}>API Keys</h2>
+                            <div>
+                                <h2 style={{
+                                    fontSize: isTelegram ? '1.25rem' : '1.5rem',
+                                    fontWeight: 800,
+                                    color: '#FFFFFF',
+                                    fontFamily: "'Inter', sans-serif",
+                                    marginBottom: '4px'
+                                }}>API Keys</h2>
+                                <p style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.8rem', fontFamily: "'JetBrains Mono', monospace" }}>
+                                    Manage your security credentials
+                                </p>
+                            </div>
                             <button
                                 onClick={() => setShowCreateKey(true)}
                                 style={{
-                                    padding: '0.625rem 1.25rem',
+                                    padding: isTelegram ? '0.5rem 1rem' : '0.75rem 1.5rem',
                                     borderRadius: '12px',
-                                    background: '#00F0FF',
+                                    background: 'linear-gradient(135deg, #00F0FF, #00D1FF)',
                                     border: 'none',
                                     color: '#000000',
                                     cursor: 'pointer',
@@ -463,22 +548,22 @@ export default function Dashboard() {
                                     alignItems: 'center',
                                     gap: '0.5rem',
                                     fontFamily: "'Inter', sans-serif",
-                                    fontWeight: 700,
+                                    fontWeight: 800,
                                     fontSize: '0.9rem',
-                                    transition: 'all 0.3s',
-                                    boxShadow: '0 0 12px rgba(0, 240, 255, 0.3)'
+                                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                    boxShadow: '0 0 20px rgba(0, 240, 255, 0.3)'
                                 }}
                                 onMouseEnter={(e) => {
-                                    e.currentTarget.style.boxShadow = '0 0 20px rgba(0, 240, 255, 0.5)';
-                                    e.currentTarget.style.transform = 'translateY(-1px)';
+                                    e.currentTarget.style.boxShadow = '0 0 30px rgba(0, 240, 255, 0.5)';
+                                    e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
                                 }}
                                 onMouseLeave={(e) => {
-                                    e.currentTarget.style.boxShadow = '0 0 12px rgba(0, 240, 255, 0.3)';
-                                    e.currentTarget.style.transform = 'translateY(0)';
+                                    e.currentTarget.style.boxShadow = '0 0 20px rgba(0, 240, 255, 0.3)';
+                                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
                                 }}
                             >
-                                <Plus size={16} style={{ filter: 'drop-shadow(0 0 4px rgba(0, 0, 0, 0.3))' }} />
-                                Create Key
+                                <Plus size={18} />
+                                {!isTelegram && "Create New Key"}
                             </button>
                         </div>
 
@@ -603,95 +688,123 @@ export default function Dashboard() {
                             </div>
                         )}
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                             {apiKeys.length === 0 ? (
-                                <div style={{
-                                    padding: '2rem',
+                                <div className="glass-panel" style={{
+                                    padding: '4rem 2rem',
                                     textAlign: 'center',
-                                    color: 'var(--text-muted)'
+                                    color: 'rgba(255, 255, 255, 0.3)',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    gap: '1rem',
+                                    background: 'rgba(255, 255, 255, 0.01)',
+                                    border: '1px dashed rgba(255, 255, 255, 0.1)'
                                 }}>
-                                    No API keys yet. Create one to get started!
+                                    <div style={{
+                                        width: '64px',
+                                        height: '64px',
+                                        borderRadius: '20px',
+                                        background: 'rgba(255, 255, 255, 0.03)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        marginBottom: '0.5rem'
+                                    }}>
+                                        <Key size={32} />
+                                    </div>
+                                    <h3 style={{ color: '#FFFFFF', fontWeight: 600, fontSize: '1.1rem' }}>No API keys found</h3>
+                                    <p style={{ maxWidth: '300px', fontSize: '0.9rem' }}>
+                                        Generate your first API key to start integrating CoreEdge into your applications.
+                                    </p>
                                 </div>
                             ) : (
                                 apiKeys.map(key => (
                                     <div
                                         key={key.id}
+                                        className="glass-panel"
                                         style={{
-                                            padding: '1.5rem',
-                                            borderRadius: '16px',
-                                            background: 'rgba(255, 255, 255, 0.03)',
-                                            backdropFilter: 'blur(20px)',
-                                            border: '1px solid rgba(0, 240, 255, 0.2)',
+                                            padding: isTelegram ? '1.25rem' : '1.5rem 2rem',
                                             display: 'flex',
                                             justifyContent: 'space-between',
                                             alignItems: 'center',
-                                            boxShadow: '0 0 12px rgba(0, 240, 255, 0.1)',
-                                            transition: 'all 0.3s',
                                             position: 'relative',
-                                            zIndex: 1
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            e.currentTarget.style.borderColor = '#00F0FF';
-                                            e.currentTarget.style.boxShadow = '0 0 20px rgba(0, 240, 255, 0.2)';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            e.currentTarget.style.borderColor = 'rgba(0, 240, 255, 0.2)';
-                                            e.currentTarget.style.boxShadow = '0 0 12px rgba(0, 240, 255, 0.1)';
+                                            zIndex: 1,
+                                            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)'
                                         }}
                                     >
                                         <div style={{ flex: 1 }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-                                                <Key size={18} color="#00F0FF" style={{ filter: 'drop-shadow(0 0 4px rgba(0, 240, 255, 0.5))' }} />
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+                                                <div style={{
+                                                    width: '32px',
+                                                    height: '32px',
+                                                    borderRadius: '8px',
+                                                    background: 'rgba(0, 240, 255, 0.05)',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    border: '1px solid rgba(0, 240, 255, 0.1)'
+                                                }}>
+                                                    <Key size={16} color="#00F0FF" />
+                                                </div>
                                                 <h3 style={{
                                                     fontWeight: 700,
                                                     color: '#FFFFFF',
                                                     fontFamily: "'Inter', sans-serif",
-                                                    fontSize: '1.1rem'
+                                                    fontSize: '1rem'
                                                 }}>{key.name}</h3>
                                                 <span style={{
-                                                    padding: '0.2rem 0.5rem',
-                                                    borderRadius: '4px',
-                                                    background: 'rgba(0, 240, 255, 0.1)',
-                                                    border: '1px solid rgba(0, 240, 255, 0.2)',
-                                                    color: '#00F0FF',
-                                                    fontSize: '0.7rem',
+                                                    padding: '0.2rem 0.6rem',
+                                                    borderRadius: '6px',
+                                                    background: 'rgba(255, 255, 255, 0.03)',
+                                                    border: '1px solid rgba(255, 255, 255, 0.05)',
+                                                    color: 'rgba(255, 255, 255, 0.4)',
+                                                    fontSize: '0.65rem',
                                                     fontFamily: "'JetBrains Mono', monospace",
-                                                    fontWeight: 600,
-                                                    textTransform: 'uppercase',
-                                                    letterSpacing: '0.05em'
+                                                    fontWeight: 500
                                                 }}>ID: {key.id.slice(0, 8)}</span>
                                                 {!key.is_active && (
                                                     <span style={{
-                                                        padding: '0.25rem 0.5rem',
-                                                        borderRadius: '4px',
-                                                        background: 'rgba(239, 68, 68, 0.2)',
-                                                        border: '1px solid rgba(239, 68, 68, 0.3)',
-                                                        color: '#ef4444',
-                                                        fontSize: '0.75rem',
+                                                        padding: '0.2rem 0.6rem',
+                                                        borderRadius: '6px',
+                                                        background: 'rgba(255, 75, 43, 0.1)',
+                                                        border: '1px solid rgba(255, 75, 43, 0.2)',
+                                                        color: '#FF4B2B',
+                                                        fontSize: '0.65rem',
                                                         fontFamily: "'JetBrains Mono', monospace",
-                                                        fontWeight: 600
+                                                        fontWeight: 700,
+                                                        letterSpacing: '0.05em'
                                                     }}>REVOKED</span>
                                                 )}
                                             </div>
-                                            <p style={{
-                                                color: '#00F0FF',
-                                                fontSize: '0.85rem',
-                                                marginBottom: '0.5rem',
-                                                fontFamily: "'JetBrains Mono', monospace",
-                                                letterSpacing: '0.05em'
+                                            <div style={{
+                                                background: 'rgba(0, 0, 0, 0.2)',
+                                                padding: '0.75rem 1rem',
+                                                borderRadius: '10px',
+                                                border: '1px solid rgba(255, 255, 255, 0.03)',
+                                                marginBottom: '1rem',
+                                                display: 'inline-block'
                                             }}>
-                                                {key.prefix}...
-                                            </p>
+                                                <p style={{
+                                                    color: '#00F0FF',
+                                                    fontSize: '0.85rem',
+                                                    fontFamily: "'JetBrains Mono', monospace",
+                                                    letterSpacing: '0.1em',
+                                                    margin: 0
+                                                }}>
+                                                    {key.prefix}<span style={{ opacity: 0.3 }}>••••••••••••••••</span>
+                                                </p>
+                                            </div>
                                             <div style={{
                                                 display: 'flex',
                                                 gap: '1.5rem',
-                                                fontSize: '0.8rem',
-                                                color: 'rgba(255, 255, 255, 0.6)',
+                                                fontSize: '0.75rem',
+                                                color: 'rgba(255, 255, 255, 0.4)',
                                                 fontFamily: "'JetBrains Mono', monospace"
                                             }}>
-                                                <span>RATE_LIMIT: <span style={{ color: '#00F0FF' }}>{key.rate_limit}/min</span></span>
+                                                <span>RATE_LIMIT: <span style={{ color: 'rgba(255, 255, 255, 0.7)' }}>{key.rate_limit}/min</span></span>
                                                 {key.last_used && (
-                                                    <span>LAST_USED: <span style={{ color: '#00F0FF' }}>{new Date(key.last_used).toLocaleDateString()}</span></span>
+                                                    <span>LAST_USED: <span style={{ color: 'rgba(255, 255, 255, 0.7)' }}>{new Date(key.last_used).toLocaleDateString()}</span></span>
                                                 )}
                                             </div>
                                         </div>
@@ -760,62 +873,91 @@ export default function Dashboard() {
                         </div>
 
                         {showCreateWebhook && (
-                            <div style={{
-                                padding: '1.5rem',
-                                borderRadius: '12px',
-                                background: 'var(--panel-bg)',
-                                border: '1px solid var(--border-color)',
-                                marginBottom: '1.5rem'
+                            <div className="glass-panel" style={{
+                                padding: isTelegram ? '1.25rem' : '2rem',
+                                marginBottom: '2rem',
+                                border: '1px solid rgba(0, 240, 255, 0.2)',
+                                background: 'rgba(0, 240, 255, 0.02)',
+                                position: 'relative',
+                                zIndex: 2
                             }}>
-                                <h3 style={{ marginBottom: '1rem', fontSize: '1.1rem', fontWeight: 600 }}>Create Webhook</h3>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                                    <input
-                                        type="url"
-                                        placeholder="https://your-server.com/webhook"
-                                        value={newWebhookUrl}
-                                        onChange={(e) => setNewWebhookUrl(e.target.value)}
-                                        style={{
-                                            padding: '0.75rem',
-                                            borderRadius: '8px',
-                                            background: 'var(--input-bg)',
-                                            border: '1px solid var(--border-color)',
-                                            color: 'var(--text-main)',
-                                            fontSize: '1rem'
-                                        }}
-                                    />
+                                <h3 style={{ marginBottom: '1.5rem', fontSize: '1.2rem', fontWeight: 800, color: '#FFFFFF', fontFamily: "'Inter', sans-serif" }}>CONFIGURE_WEBHOOK</h3>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                                     <div>
-                                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Events:</label>
-                                        {['upload', 'delete'].map(event => (
-                                            <label key={event} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                                                <input
-                                                    type="checkbox"
-                                                    checked={newWebhookEvents.includes(event)}
-                                                    onChange={(e) => {
-                                                        if (e.target.checked) {
-                                                            setNewWebhookEvents([...newWebhookEvents, event]);
-                                                        } else {
-                                                            setNewWebhookEvents(newWebhookEvents.filter(e => e !== event));
-                                                        }
-                                                    }}
-                                                />
-                                                <span style={{ textTransform: 'capitalize' }}>{event}</span>
-                                            </label>
-                                        ))}
+                                        <label style={{
+                                            display: 'block',
+                                            marginBottom: '0.5rem',
+                                            fontSize: '0.75rem',
+                                            fontWeight: 700,
+                                            color: '#00F0FF',
+                                            fontFamily: "'JetBrains Mono', monospace",
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '0.1em'
+                                        }}>TARGET_URL</label>
+                                        <input
+                                            type="url"
+                                            placeholder="https://your-server.com/webhook"
+                                            value={newWebhookUrl}
+                                            onChange={(e) => setNewWebhookUrl(e.target.value)}
+                                            style={{
+                                                width: '100%',
+                                                padding: '0.875rem',
+                                                borderRadius: '12px',
+                                                background: 'rgba(0, 0, 0, 0.3)',
+                                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                                color: '#FFFFFF',
+                                                fontSize: '1rem',
+                                                fontFamily: "'JetBrains Mono', monospace"
+                                            }}
+                                        />
                                     </div>
-                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <div>
+                                        <label style={{
+                                            display: 'block',
+                                            marginBottom: '1rem',
+                                            fontSize: '0.75rem',
+                                            fontWeight: 700,
+                                            color: '#00F0FF',
+                                            fontFamily: "'JetBrains Mono', monospace",
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '0.1em'
+                                        }}>SELECT_EVENTS</label>
+                                        <div style={{ display: 'flex', gap: '1.5rem' }}>
+                                            {['upload', 'delete'].map(event => (
+                                                <label key={event} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={newWebhookEvents.includes(event)}
+                                                        onChange={(e) => {
+                                                            if (e.target.checked) {
+                                                                setNewWebhookEvents([...newWebhookEvents, event]);
+                                                            } else {
+                                                                setNewWebhookEvents(newWebhookEvents.filter(ev => ev !== event));
+                                                            }
+                                                        }}
+                                                        style={{ width: '18px', height: '18px', accentColor: '#00F0FF' }}
+                                                    />
+                                                    <span style={{ color: '#FFFFFF', fontSize: '0.9rem', textTransform: 'uppercase', fontFamily: "'JetBrains Mono', monospace" }}>{event}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
                                         <button
                                             onClick={createWebhook}
                                             style={{
                                                 padding: '0.75rem 1.5rem',
-                                                borderRadius: '8px',
-                                                background: 'var(--accent-primary)',
+                                                borderRadius: '12px',
+                                                background: '#00F0FF',
                                                 border: 'none',
-                                                color: 'white',
+                                                color: '#000000',
                                                 cursor: 'pointer',
-                                                flex: 1
+                                                flex: 1,
+                                                fontWeight: 800,
+                                                fontFamily: "'Inter', sans-serif"
                                             }}
                                         >
-                                            Create
+                                            INITIALIZE_WEBHOOK
                                         </button>
                                         <button
                                             onClick={() => {
@@ -825,56 +967,142 @@ export default function Dashboard() {
                                             }}
                                             style={{
                                                 padding: '0.75rem 1.5rem',
-                                                borderRadius: '8px',
-                                                background: 'var(--panel-bg)',
-                                                border: '1px solid var(--border-color)',
-                                                color: 'var(--text-main)',
-                                                cursor: 'pointer'
+                                                borderRadius: '12px',
+                                                background: 'rgba(255, 255, 255, 0.05)',
+                                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                                color: '#FFFFFF',
+                                                cursor: 'pointer',
+                                                fontWeight: 600
                                             }}
                                         >
-                                            Cancel
+                                            CANCEL
                                         </button>
                                     </div>
                                 </div>
                             </div>
                         )}
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                             {webhooks.length === 0 ? (
-                                <div style={{
-                                    padding: '2rem',
+                                <div className="glass-panel" style={{
+                                    padding: '4rem 2rem',
                                     textAlign: 'center',
-                                    color: 'var(--text-muted)'
+                                    color: 'rgba(255, 255, 255, 0.3)',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    gap: '1rem',
+                                    background: 'rgba(255, 255, 255, 0.01)',
+                                    border: '1px dashed rgba(255, 255, 255, 0.1)'
                                 }}>
-                                    No webhooks yet. Create one to receive event notifications!
+                                    <div style={{
+                                        width: '64px',
+                                        height: '64px',
+                                        borderRadius: '20px',
+                                        background: 'rgba(255, 255, 255, 0.03)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        marginBottom: '0.5rem'
+                                    }}>
+                                        <Webhook size={32} />
+                                    </div>
+                                    <h3 style={{ color: '#FFFFFF', fontWeight: 600, fontSize: '1.1rem' }}>No webhooks configured</h3>
+                                    <p style={{ maxWidth: '300px', fontSize: '0.9rem' }}>
+                                        Registered webhooks will appear here to receive real-time event notifications.
+                                    </p>
                                 </div>
                             ) : (
                                 webhooks.map(webhook => (
                                     <div
                                         key={webhook.id}
+                                        className="glass-panel"
                                         style={{
-                                            padding: '1.5rem',
-                                            borderRadius: '12px',
-                                            background: 'var(--panel-bg)',
-                                            border: '1px solid var(--border-color)'
+                                            padding: isTelegram ? '1.25rem' : '1.5rem 2rem',
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+                                            position: 'relative',
+                                            zIndex: 1
                                         }}
                                     >
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                                            <Webhook size={18} />
-                                            <h3 style={{ fontWeight: 600 }}>{webhook.url}</h3>
+                                        <div style={{ flex: 1 }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                                                <div style={{
+                                                    width: '32px',
+                                                    height: '32px',
+                                                    borderRadius: '8px',
+                                                    background: 'rgba(0, 240, 255, 0.05)',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    border: '1px solid rgba(0, 240, 255, 0.1)'
+                                                }}>
+                                                    <Webhook size={16} color="#00F0FF" />
+                                                </div>
+                                                <h3 style={{ fontWeight: 700, fontSize: '1rem', fontFamily: "'JetBrains Mono', monospace", color: '#FFFFFF' }}>
+                                                    {webhook.url}
+                                                </h3>
+                                                <span style={{
+                                                    padding: '0.2rem 0.6rem',
+                                                    borderRadius: '6px',
+                                                    background: webhook.is_active ? 'rgba(0, 230, 118, 0.1)' : 'rgba(255, 75, 43, 0.1)',
+                                                    border: `1px solid ${webhook.is_active ? 'rgba(0, 230, 118, 0.2)' : 'rgba(255, 75, 43, 0.2)'}`,
+                                                    color: webhook.is_active ? '#00E676' : '#FF4B2B',
+                                                    fontSize: '0.65rem',
+                                                    fontFamily: "'JetBrains Mono', monospace",
+                                                    fontWeight: 700,
+                                                    textTransform: 'uppercase'
+                                                }}>
+                                                    {webhook.is_active ? 'Active' : 'Inactive'}
+                                                </span>
+                                            </div>
+                                            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                                    {webhook.events.map(event => (
+                                                        <span key={event} style={{
+                                                            fontSize: '0.7rem',
+                                                            color: 'rgba(255, 255, 255, 0.4)',
+                                                            fontFamily: "'JetBrains Mono', monospace",
+                                                            background: 'rgba(255, 255, 255, 0.03)',
+                                                            padding: '0.1rem 0.4rem',
+                                                            borderRadius: '4px'
+                                                        }}>
+                                                            {event}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            </div>
                                         </div>
-                                        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
-                                            Events: {webhook.events.join(', ')}
-                                        </p>
-                                        <span style={{
-                                            padding: '0.25rem 0.5rem',
-                                            borderRadius: '4px',
-                                            background: webhook.is_active ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)',
-                                            color: webhook.is_active ? '#22c55e' : '#ef4444',
-                                            fontSize: '0.75rem'
-                                        }}>
-                                            {webhook.is_active ? 'Active' : 'Inactive'}
-                                        </span>
+                                        <button
+                                            onClick={() => deleteWebhook(webhook.id)}
+                                            style={{
+                                                width: '32px',
+                                                height: '32px',
+                                                borderRadius: '8px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                background: 'rgba(255, 255, 255, 0.03)',
+                                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                                color: 'rgba(255, 255, 255, 0.3)',
+                                                cursor: 'pointer',
+                                                transition: 'all 0.2s'
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                e.currentTarget.style.background = 'rgba(255, 75, 43, 0.1)';
+                                                e.currentTarget.style.color = '#FF4B2B';
+                                                e.currentTarget.style.borderColor = 'rgba(255, 75, 43, 0.2)';
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
+                                                e.currentTarget.style.color = 'rgba(255, 255, 255, 0.3)';
+                                                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                                            }}
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
                                     </div>
                                 ))
                             )}
@@ -898,99 +1126,129 @@ export default function Dashboard() {
                             position: 'relative',
                             zIndex: 1
                         }}>Settings</h2>
-                        <div style={{
-                            padding: '2rem',
-                            borderRadius: '16px',
-                            background: 'rgba(255, 255, 255, 0.03)',
-                            backdropFilter: 'blur(20px)',
-                            border: '1px solid rgba(0, 240, 255, 0.2)',
-                            boxShadow: '0 0 12px rgba(0, 240, 255, 0.1)',
+                        <div className="glass-panel" style={{
+                            padding: isTelegram ? '1.5rem' : '2.5rem',
                             position: 'relative',
-                            zIndex: 1
+                            zIndex: 1,
+                            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)'
                         }}>
                             <div style={{
-                                marginBottom: '1.5rem',
-                                paddingBottom: '1.5rem',
-                                borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
+                                marginBottom: '2.5rem',
+                                paddingBottom: '2.5rem',
+                                borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
                             }}>
                                 <label style={{
                                     display: 'block',
-                                    marginBottom: '0.75rem',
-                                    fontWeight: 700,
+                                    marginBottom: '1rem',
+                                    fontWeight: 800,
                                     fontSize: '0.75rem',
                                     color: '#00F0FF',
                                     fontFamily: "'JetBrains Mono', monospace",
                                     textTransform: 'uppercase',
-                                    letterSpacing: '0.1em'
+                                    letterSpacing: '0.15em'
                                 }}>ACCOUNT_EMAIL</label>
-                                <input
-                                    type="email"
-                                    value={user.email}
-                                    disabled
-                                    style={{
-                                        padding: '0.875rem',
-                                        borderRadius: '12px',
-                                        background: 'rgba(0, 0, 0, 0.3)',
-                                        border: '1px solid rgba(0, 240, 255, 0.2)',
-                                        color: '#FFFFFF',
-                                        fontSize: '1rem',
-                                        width: '100%',
-                                        fontFamily: "'Inter', sans-serif"
-                                    }}
-                                />
+                                <div style={{
+                                    padding: '1.25rem 1.5rem',
+                                    borderRadius: '16px',
+                                    background: 'rgba(0, 0, 0, 0.4)',
+                                    border: '1px solid rgba(255, 255, 255, 0.05)',
+                                    color: 'rgba(255, 255, 255, 0.8)',
+                                    fontSize: '1.1rem',
+                                    fontFamily: "'Inter', sans-serif",
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '1rem',
+                                    boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.2)'
+                                }}>
+                                    <User size={20} color="rgba(255, 255, 255, 0.2)" />
+                                    {user.email}
+                                </div>
                             </div>
                             <div style={{
-                                marginBottom: '1.5rem',
-                                paddingBottom: '1.5rem',
-                                borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
+                                marginBottom: '2.5rem',
+                                paddingBottom: '2.5rem',
+                                borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
                             }}>
                                 <label style={{
                                     display: 'block',
-                                    marginBottom: '0.75rem',
-                                    fontWeight: 700,
+                                    marginBottom: '1rem',
+                                    fontWeight: 800,
                                     fontSize: '0.75rem',
                                     color: '#00F0FF',
                                     fontFamily: "'JetBrains Mono', monospace",
                                     textTransform: 'uppercase',
-                                    letterSpacing: '0.1em'
-                                }}>CREATED_AT</label>
-                                <p style={{
-                                    color: '#FFFFFF',
+                                    letterSpacing: '0.15em'
+                                }}>ACCOUNT_ID</label>
+                                <div style={{
+                                    padding: '1.25rem 1.5rem',
+                                    borderRadius: '16px',
+                                    background: 'rgba(0, 0, 0, 0.4)',
+                                    border: '1px solid rgba(255, 255, 255, 0.05)',
+                                    color: 'rgba(255, 255, 255, 0.8)',
                                     fontSize: '1rem',
                                     fontFamily: "'JetBrains Mono', monospace",
-                                    padding: '0.875rem',
-                                    background: 'rgba(0, 0, 0, 0.3)',
-                                    borderRadius: '12px',
-                                    border: '1px solid rgba(0, 240, 255, 0.2)'
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.2)'
                                 }}>
-                                    {new Date(user.created_at).toLocaleString()}
-                                </p>
+                                    <span>{user.id}</span>
+                                    <button
+                                        onClick={() => copyToClipboard(user.id, 'user-id')}
+                                        style={{
+                                            background: 'none',
+                                            border: 'none',
+                                            color: copiedKey === 'user-id' ? '#00E676' : 'rgba(255, 255, 255, 0.3)',
+                                            cursor: 'pointer',
+                                            padding: '4px'
+                                        }}
+                                    >
+                                        {copiedKey === 'user-id' ? <Check size={18} /> : <Copy size={18} />}
+                                    </button>
+                                </div>
                             </div>
-                            {user.last_login && (
+                            <div style={{ display: 'grid', gridTemplateColumns: isTelegram ? '1fr' : '1fr 1fr', gap: '2rem' }}>
                                 <div>
                                     <label style={{
                                         display: 'block',
                                         marginBottom: '0.75rem',
-                                        fontWeight: 700,
-                                        fontSize: '0.75rem',
-                                        color: '#00F0FF',
+                                        fontWeight: 800,
+                                        fontSize: '0.7rem',
+                                        color: 'rgba(255, 255, 255, 0.3)',
                                         fontFamily: "'JetBrains Mono', monospace",
                                         textTransform: 'uppercase',
                                         letterSpacing: '0.1em'
-                                    }}>LAST_LOGIN</label>
+                                    }}>MEMBER_SINCE</label>
                                     <p style={{
                                         color: '#FFFFFF',
-                                        fontSize: '1rem',
-                                        fontFamily: "'JetBrains Mono', monospace",
-                                        padding: '0.875rem',
-                                        background: 'rgba(0, 0, 0, 0.3)',
-                                        borderRadius: '12px',
-                                        border: '1px solid rgba(0, 240, 255, 0.2)'
+                                        fontSize: '0.9rem',
+                                        fontFamily: "'JetBrains Mono', monospace"
                                     }}>
-                                        {new Date(user.last_login).toLocaleString()}
+                                        {new Date(user.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
                                     </p>
                                 </div>
-                            )}
+                                {user.last_login && (
+                                    <div>
+                                        <label style={{
+                                            display: 'block',
+                                            marginBottom: '0.75rem',
+                                            fontWeight: 800,
+                                            fontSize: '0.7rem',
+                                            color: 'rgba(255, 255, 255, 0.3)',
+                                            fontFamily: "'JetBrains Mono', monospace",
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '0.1em'
+                                        }}>PREVIOUS_SESSION</label>
+                                        <p style={{
+                                            color: '#FFFFFF',
+                                            fontSize: '0.9rem',
+                                            fontFamily: "'JetBrains Mono', monospace"
+                                        }}>
+                                            {new Date(user.last_login).toLocaleString()}
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </motion.div>
                 )}
