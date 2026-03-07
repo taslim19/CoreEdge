@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { TelegramUpdate, sendMessage, sendMediaToChannel, sendLog, downloadTelegramFile } from '@/lib/telegram';
 import { uploadToR2, isR2Configured } from '@/lib/r2';
 import { saveImage, generateId, getStats, registerUser } from '@/lib/db';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+import os from 'os';
+import fs from 'fs/promises';
+import crypto from 'crypto';
+
+const execAsync = promisify(exec);
 
 export async function POST(req: NextRequest) {
     try {
@@ -64,6 +71,101 @@ export async function POST(req: NextRequest) {
                     `📶 <b>Ping:</b> ${stats.ping}ms`,
                     'HTML'
                 );
+                return new NextResponse('OK');
+            }
+
+            // --- Admin Commands ---
+            const isAdmin = process.env.ADMIN_ID && from.id.toString() === process.env.ADMIN_ID;
+
+            if (command === '/usage' || command === 'usage') {
+                if (!isAdmin) {
+                    await sendMessage(chatId, "❌ Unauthorized.");
+                    return new NextResponse('OK');
+                }
+                try {
+                    // RAM
+                    const totalMem = os.totalmem() / (1024 ** 3); // in GB
+                    const freeMem = os.freemem() / (1024 ** 3);
+                    const usedMem = totalMem - freeMem;
+                    
+                    // Disk space 
+                    const stat = await fs.statfs(process.cwd());
+                    const totalDisk = (stat.blocks * stat.bsize) / (1024 ** 3);
+                    const freeDisk = (stat.bfree * stat.bsize) / (1024 ** 3);
+                    const usedDisk = totalDisk - freeDisk;
+
+                    await sendMessage(chatId,
+                        `🖥️ <b>Server Usage</b>\n\n` +
+                        `🧠 <b>RAM:</b> ${usedMem.toFixed(2)} GB / ${totalMem.toFixed(2)} GB (${((usedMem/totalMem)*100).toFixed(1)}%)\n` +
+                        `💽 <b>Disk:</b> ${usedDisk.toFixed(2)} GB / ${totalDisk.toFixed(2)} GB (${((usedDisk/totalDisk)*100).toFixed(1)}%)`,
+                        'HTML'
+                    );
+                } catch (e: any) {
+                    await sendMessage(chatId, `❌ Error: ${e.message}`);
+                }
+                return new NextResponse('OK');
+            }
+
+            if (command === '/sh' || command === 'sh') {
+                if (!isAdmin) {
+                    await sendMessage(chatId, "❌ Unauthorized.");
+                    return new NextResponse('OK');
+                }
+                
+                const cmd = text.slice(command.length + (text.startsWith('/') ? 1 : 0)).trim();
+                if (!cmd) {
+                     await sendMessage(chatId, "❌ Please provide a command: `/sh echo hi`", 'Markdown');
+                     return new NextResponse('OK');
+                }
+
+                try {
+                    const { stdout, stderr } = await execAsync(cmd);
+                    const output = stdout || stderr || 'Command executed with no output.';
+                    // Telegram has a 4096 char limit, send truncated if too long
+                    const safeOutput = output.length > 4000 ? output.substring(0, 4000) + '... (truncated)' : output;
+                    await sendMessage(chatId, `<pre>${safeOutput}</pre>`, 'HTML');
+                } catch (e: any) {
+                    const errStr = e.message.length > 4000 ? e.message.substring(0, 4000) + '...' : e.message;
+                    await sendMessage(chatId, `❌ Error:\n<pre>${errStr}</pre>`, 'HTML');
+                }
+                return new NextResponse('OK');
+            }
+
+            if (command === '/eval' || command === 'eval') {
+                 if (!isAdmin) {
+                    await sendMessage(chatId, "❌ Unauthorized.");
+                    return new NextResponse('OK');
+                }
+                
+                let code = text.slice(command.length + (text.startsWith('/') ? 1 : 0)).trim();
+                if (!code) {
+                     await sendMessage(chatId, "❌ Please provide Python code: `/eval print('hello')`", 'Markdown');
+                     return new NextResponse('OK');
+                }
+
+                // Remove markdown code block formatting if present
+                if (code.startsWith('```python') || code.startsWith('```py')) {
+                    code = code.replace(/^```python\n?|^```py\n?/, '').replace(/```$/, '');
+                } else if (code.startsWith('```')) {
+                    code = code.replace(/^```\n?/, '').replace(/```$/, '');
+                }
+
+                const tmpFile = `/tmp/eval_${crypto.randomBytes(8).toString('hex')}.py`;
+                try {
+                    // Need to import os natively for windows it will be in temp 
+                    const tmpDir = os.tmpdir();
+                    const winTmpFile = `${tmpDir}/eval_${crypto.randomBytes(8).toString('hex')}.py`;
+                    await fs.writeFile(winTmpFile, code);
+                    const { stdout, stderr } = await execAsync(`python "${winTmpFile}"`);
+                    const output = stdout || stderr || 'Code executed with no output.';
+                    const safeOutput = output.length > 4000 ? output.substring(0, 4000) + '... (truncated)' : output;
+                    await sendMessage(chatId, `<b>Output:</b>\n<pre>${safeOutput}</pre>`, 'HTML');
+                    // Cleanup
+                    await fs.unlink(winTmpFile).catch(() => {});
+                } catch (e: any) {
+                     const errStr = e.message.length > 4000 ? e.message.substring(0, 4000) + '...' : e.message;
+                     await sendMessage(chatId, `❌ Error:\n<pre>${errStr}</pre>`, 'HTML');
+                }
                 return new NextResponse('OK');
             }
 
