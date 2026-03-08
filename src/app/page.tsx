@@ -276,39 +276,37 @@ export default function Home() {
         <>
             {/* Command Bar Navigation */}
             <motion.nav
-                initial={{ y: -20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
+                initial={{ y: -100, x: "-50%", opacity: 0 }}
+                animate={{ y: 0, x: "-50%", opacity: 1 }}
                 className="main-nav"
                 style={{
-                    position: 'fixed',
-                    top: '2rem',
+                    position: 'absolute',
+                    top: '1rem',
                     left: '50%',
                     transform: 'translateX(-50%)',
-                    width: '95vw',
-                    maxWidth: '1200px',
-                    background: 'rgba(255, 255, 255, 0.03)',
+                    background: 'var(--panel-bg)',
                     backdropFilter: 'blur(40px)',
-                    WebkitBackdropFilter: 'blur(40px)',
                     border: '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '24px',
+                    borderRadius: '12px',
                     padding: '12px 32px',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'space-between',
+                    gap: '40px',
                     zIndex: 9999,
-                    boxShadow: '0 25px 50px rgba(0,0,0,0.8)',
-                    whiteSpace: 'nowrap'
+                    boxShadow: '0 20px 50px rgba(0,0,0,0.8)',
+                    whiteSpace: 'nowrap',
+                    maxWidth: '95vw'
                 }}
             >
                 <Link href="/" className="nav-logo" style={{
                     color: 'var(--text-main)',
                     textDecoration: 'none',
-                    fontSize: '1.4rem',
-                    letterSpacing: '-0.02em',
+                    fontSize: '1.6rem',
+                    letterSpacing: '-0.05em',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '10px',
-                    fontFamily: "'Inter', sans-serif",
+                    fontFamily: 'Inter, sans-serif',
                     flexShrink: 0
                 }}>
                     <Zap
@@ -339,13 +337,13 @@ export default function Home() {
                 <Link href="/docs" className="nav-link" style={{
                     color: 'var(--text-muted)',
                     textDecoration: 'none',
-                    fontSize: '0.9rem',
-                    fontWeight: '500',
+                    fontSize: '1rem',
+                    fontWeight: '600',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '6px',
-                    transition: 'all 0.2s ease',
-                    fontFamily: "'Inter', sans-serif",
+                    gap: '8px',
+                    transition: 'all 0.3s',
+                    fontFamily: 'Inter, sans-serif',
                     whiteSpace: 'nowrap'
                 }}
                     onMouseEnter={(e) => {
@@ -364,13 +362,13 @@ export default function Home() {
                 <Link href="/dashboard" className="nav-link" style={{
                     color: 'var(--text-muted)',
                     textDecoration: 'none',
-                    fontSize: '0.9rem',
-                    fontWeight: '500',
+                    fontSize: '1rem',
+                    fontWeight: '600',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '6px',
-                    transition: 'all 0.2s ease',
-                    fontFamily: "'Inter', sans-serif",
+                    gap: '8px',
+                    transition: 'all 0.3s',
+                    fontFamily: 'Inter, sans-serif',
                     whiteSpace: 'nowrap'
                 }}
                     onMouseEnter={(e) => {
@@ -390,17 +388,18 @@ export default function Home() {
                     onClick={toggleTheme}
                     className="theme-toggle"
                     style={{
-                        background: 'rgba(255, 255, 255, 0.03)',
+                        background: 'var(--bg-color)',
                         border: '1px solid var(--border-color)',
-                        borderRadius: '10px',
-                        width: '36px',
-                        height: '36px',
+                        borderRadius: '8px',
+                        width: '40px',
+                        height: '40px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         cursor: 'pointer',
                         color: 'var(--accent-cyan)',
-                        transition: 'all 0.2s ease',
+                        transition: 'all 0.3s',
+                        boxShadow: '0 0 10px var(--glow-cyan)',
                         flexShrink: 0
                     }}
                     onMouseEnter={(e) => {
@@ -417,460 +416,458 @@ export default function Home() {
             </motion.nav>
 
             <main className="main-container">
-                <div className="hero-section">
-                    <header className="hero">
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.5 }}
-                        >
-                            {isTelegram && (
-                                <div style={{
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    gap: '1rem',
-                                    marginBottom: '2rem'
-                                }}>
-                                    <div style={{
-                                        background: 'rgba(0, 240, 255, 0.1)',
-                                        padding: '8px 16px',
-                                        borderRadius: '100px',
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: '8px',
-                                        border: '1px solid rgba(0, 240, 255, 0.2)',
-                                        color: '#00F0FF',
-                                        fontSize: '0.85rem',
-                                        fontWeight: '600',
-                                        fontFamily: 'JetBrains Mono, monospace'
-                                    }}>
-                                        <Zap size={14} fill="#00F0FF" color="#00F0FF" />
-                                        <span>Now powered by Upstash & Telegram</span>
-                                    </div>
-                                    <motion.div
-                                        initial={{ opacity: 0, scale: 0.9 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        transition={{ delay: 0.3, duration: 0.5 }}
-                                        className="cyber-pulse"
-                                        style={{
-                                            background: 'rgba(0, 240, 255, 0.1)',
-                                            padding: '4px 12px',
-                                            borderRadius: '100px',
-                                            display: 'inline-flex',
-                                            alignItems: 'center',
-                                            gap: '6px',
-                                            border: '1px solid rgba(0, 240, 255, 0.3)',
-                                            color: '#00F0FF',
-                                            fontSize: '0.7rem',
-                                            fontWeight: '800',
-                                            letterSpacing: '0.1em',
-                                            textTransform: 'uppercase'
-                                        }}
-                                    >
-                                        <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#00F0FF' }} />
-                                        BETA
-                                    </motion.div>
-                                </div>
-                            )}
-
-                            <h1 className="hero-title">
-                                Media hosted,<br />
-                                at the <span className="title-accent">edge</span>.
-                            </h1>
-                            <p className="hero-subtitle">
-                                Zero storage. Lightning speed. Infinity scale.
-                            </p>
-                        </motion.div>
-                    </header>
-
+                <header className="hero">
                     <motion.div
-                        className="upload-card"
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.6 }}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.5 }}
                     >
-                        <div className="input-group" style={{ marginBottom: '1.5rem', position: 'relative' }}>
-                            <i className="input-icon" style={{
-                                position: 'absolute',
-                                left: '12px',
-                                top: '50%',
-                                transform: 'translateY(-50%)',
-                                color: 'var(--text-muted)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px'
-                            }}><Settings size={18} /></i>
-                            <input
-                                type="text"
-                                placeholder="Custom File Name (Optional)"
-                                value={customId}
-                                onChange={(e) => setCustomId(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
-                                className="custom-id-input"
-                                style={{
-                                    width: '100%',
-                                    background: 'var(--input-bg)',
-                                    border: '1px solid var(--border-color)',
-                                    borderRadius: '16px',
-                                    padding: '12px 12px 12px 40px',
-                                    color: 'var(--text-main)',
-                                    fontSize: '0.9rem',
-                                    outline: 'none',
-                                    transition: 'all 0.3s',
-                                    fontFamily: 'JetBrains Mono, monospace'
-                                }}
-                                onFocus={(e) => {
-                                    e.target.style.borderColor = '#00F0FF';
-                                    e.target.style.boxShadow = '0 0 10px rgba(0, 240, 255, 0.3)';
-                                }}
-                                onBlur={(e) => {
-                                    e.target.style.borderColor = 'var(--border-color)';
-                                    e.target.style.boxShadow = 'none';
-                                }}
-                            />
-                        </div>
-
-                        <div
-                            className={`drop-zone ${isDragging ? 'active' : ''} ${uploading ? 'uploading' : ''}`}
-                            onDragOver={handleDragOver}
-                            onDragLeave={handleDragLeave}
-                            onDrop={handleDrop}
-                            onClick={() => !uploading && document.getElementById('fileInput')?.click()}
-                        >
-                            <input
-                                type="file"
-                                id="fileInput"
-                                hidden
-                                accept="image/*,video/*"
-                                onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])}
-                            />
-
-                            <div className="drop-zone-content" style={{
+                        {isTelegram && (
+                            <div style={{
                                 display: 'flex',
                                 flexDirection: 'column',
                                 alignItems: 'center',
                                 gap: '1rem',
-                                position: 'relative',
-                                zIndex: 1
+                                marginBottom: '2rem'
                             }}>
-                                <div className="upload-icon-wrapper" style={{
-                                    position: 'relative',
-                                    width: '80px',
-                                    height: '80px',
-                                    display: 'flex',
+                                <div style={{
+                                    background: 'rgba(0, 240, 255, 0.1)',
+                                    padding: '8px 16px',
+                                    borderRadius: '100px',
+                                    display: 'inline-flex',
                                     alignItems: 'center',
-                                    justifyContent: 'center'
+                                    gap: '8px',
+                                    border: '1px solid rgba(0, 240, 255, 0.2)',
+                                    color: '#00F0FF',
+                                    fontSize: '0.85rem',
+                                    fontWeight: '600',
+                                    fontFamily: 'JetBrains Mono, monospace'
                                 }}>
-                                    <div className="scan-line" style={{
-                                        position: 'absolute',
-                                        width: '100%',
-                                        height: '2px',
-                                        background: 'linear-gradient(90deg, transparent, #00F0FF, transparent)',
-                                        animation: 'scan 2s infinite linear',
-                                        opacity: uploading ? 1 : 0,
-                                        transition: 'opacity 0.3s ease'
-                                    }} />
-                                    {uploading ? (
-                                        <div className="progress-container" style={{
-                                            position: 'relative',
-                                            width: '80px',
-                                            height: '80px',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center'
-                                        }}>
-                                            <div className="progress-value" style={{
-                                                position: 'absolute',
-                                                color: 'var(--accent-cyan)',
-                                                fontSize: '1rem',
-                                                fontWeight: '600',
-                                                fontFamily: 'JetBrains Mono, monospace'
-                                            }}>{uploadProgress || 0}%</div>
-                                            <svg className="progress-ring" width="80" height="80">
-                                                <circle
-                                                    className="progress-ring-circle"
-                                                    stroke="var(--accent-cyan)"
-                                                    strokeWidth="4"
-                                                    fill="transparent"
-                                                    r="36"
-                                                    cx="40"
-                                                    cy="40"
-                                                    style={{
-                                                        strokeDasharray: `${2 * Math.PI * 36}`,
-                                                        strokeDashoffset: `${2 * Math.PI * 36 * (1 - (uploadProgress || 0) / 100)}`,
-                                                        transition: 'stroke-dashoffset 0.2s ease-out'
-                                                    }}
-                                                />
-                                            </svg>
-                                        </div>
-                                    ) : (
-                                        <div className="icon-pulse" style={{
-                                            color: 'var(--accent-cyan)',
-                                            filter: 'drop-shadow(0 0 8px #00F0FF) drop-shadow(0 0 16px rgba(0, 240, 255, 0.5))'
-                                        }}>
-                                            <Upload size={32} />
-                                        </div>
-                                    )}
+                                    <Zap size={14} fill="#00F0FF" color="#00F0FF" />
+                                    <span>Now powered by Upstash & Telegram</span>
                                 </div>
-                                <div className="drop-zone-text" style={{ textAlign: 'center' }}>
-                                    <h3 style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, color: 'var(--text-main)' }}>{uploading ? 'Uploading to Edge...' : 'Drop image or video here'}</h3>
-                                    <p style={{
-                                        color: 'var(--text-muted)',
-                                        opacity: 0.6,
-                                        fontSize: '0.8rem',
-                                        fontFamily: 'JetBrains Mono, monospace',
-                                        letterSpacing: '0.05em'
-                                    }}>{uploading ? 'Processing through global node cluster' : 'or click to browse your files'}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <AnimatePresence>
-                            {result && (
                                 <motion.div
-                                    className="result-area"
-                                    initial={{ opacity: 0, height: 0 }}
-                                    animate={{ opacity: 1, height: 'auto' }}
-                                    exit={{ opacity: 0, height: 0 }}
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: 0.3, duration: 0.5 }}
+                                    className="cyber-pulse"
+                                    style={{
+                                        background: 'rgba(0, 240, 255, 0.1)',
+                                        padding: '4px 12px',
+                                        borderRadius: '100px',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '6px',
+                                        border: '1px solid rgba(0, 240, 255, 0.3)',
+                                        color: '#00F0FF',
+                                        fontSize: '0.7rem',
+                                        fontWeight: '800',
+                                        letterSpacing: '0.1em',
+                                        textTransform: 'uppercase'
+                                    }}
                                 >
-                                    <div className="link-box" style={{
-                                        background: 'var(--input-bg)',
-                                        border: '1px solid var(--border-color)',
-                                        borderRadius: '16px',
-                                        padding: '12px 16px',
+                                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#00F0FF' }} />
+                                    BETA
+                                </motion.div>
+                            </div>
+                        )}
+
+                        <h1 className="hero-title">
+                            Media hosted,<br />
+                            at the <span className="title-accent">edge</span>.
+                        </h1>
+                        <p className="hero-subtitle">
+                            Zero storage. Lightning speed. Infinity scale.
+                        </p>
+                    </motion.div>
+                </header>
+
+                <motion.div
+                    className="upload-card"
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                >
+                    <div className="input-group" style={{ marginBottom: '1.5rem', position: 'relative' }}>
+                        <i className="input-icon" style={{
+                            position: 'absolute',
+                            left: '12px',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            color: 'var(--text-muted)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
+                        }}><Settings size={18} /></i>
+                        <input
+                            type="text"
+                            placeholder="Custom File Name (Optional)"
+                            value={customId}
+                            onChange={(e) => setCustomId(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
+                            className="custom-id-input"
+                            style={{
+                                width: '100%',
+                                background: 'var(--input-bg)',
+                                border: '1px solid var(--border-color)',
+                                borderRadius: '16px',
+                                padding: '12px 12px 12px 40px',
+                                color: 'var(--text-main)',
+                                fontSize: '0.9rem',
+                                outline: 'none',
+                                transition: 'all 0.3s',
+                                fontFamily: 'JetBrains Mono, monospace'
+                            }}
+                            onFocus={(e) => {
+                                e.target.style.borderColor = '#00F0FF';
+                                e.target.style.boxShadow = '0 0 10px rgba(0, 240, 255, 0.3)';
+                            }}
+                            onBlur={(e) => {
+                                e.target.style.borderColor = 'var(--border-color)';
+                                e.target.style.boxShadow = 'none';
+                            }}
+                        />
+                    </div>
+
+                    <div
+                        className={`drop-zone ${isDragging ? 'active' : ''} ${uploading ? 'uploading' : ''}`}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
+                        onClick={() => !uploading && document.getElementById('fileInput')?.click()}
+                    >
+                        <input
+                            type="file"
+                            id="fileInput"
+                            hidden
+                            accept="image/*,video/*"
+                            onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])}
+                        />
+
+                        <div className="drop-zone-content" style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: '1rem',
+                            position: 'relative',
+                            zIndex: 1
+                        }}>
+                            <div className="upload-icon-wrapper" style={{
+                                position: 'relative',
+                                width: '80px',
+                                height: '80px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}>
+                                <div className="scan-line" style={{
+                                    position: 'absolute',
+                                    width: '100%',
+                                    height: '2px',
+                                    background: 'linear-gradient(90deg, transparent, #00F0FF, transparent)',
+                                    animation: 'scan 2s infinite linear',
+                                    opacity: uploading ? 1 : 0,
+                                    transition: 'opacity 0.3s ease'
+                                }} />
+                                {uploading ? (
+                                    <div className="progress-container" style={{
+                                        position: 'relative',
+                                        width: '80px',
+                                        height: '80px',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                        gap: '12px'
+                                        justifyContent: 'center'
                                     }}>
-                                        <span className="link-text" style={{
-                                            fontFamily: 'JetBrains Mono, monospace',
-                                            fontSize: '0.85rem',
+                                        <div className="progress-value" style={{
+                                            position: 'absolute',
                                             color: 'var(--accent-cyan)',
-                                            whiteSpace: 'nowrap',
-                                            overflow: 'hidden',
-                                            textOverflow: 'ellipsis'
-                                        }}>{result.url}</span>
-                                        <div style={{ display: 'flex', gap: '8px' }}>
-                                            <button
-                                                className="copy-btn"
-                                                onClick={() => setShowQr(!showQr)}
+                                            fontSize: '1rem',
+                                            fontWeight: '600',
+                                            fontFamily: 'JetBrains Mono, monospace'
+                                        }}>{uploadProgress || 0}%</div>
+                                        <svg className="progress-ring" width="80" height="80">
+                                            <circle
+                                                className="progress-ring-circle"
+                                                stroke="var(--accent-cyan)"
+                                                strokeWidth="4"
+                                                fill="transparent"
+                                                r="36"
+                                                cx="40"
+                                                cy="40"
                                                 style={{
-                                                    background: 'rgba(0, 240, 255, 0.15)',
-                                                    border: 'none',
-                                                    color: '#00F0FF',
-                                                    padding: '10px',
-                                                    borderRadius: '14px',
-                                                    cursor: 'pointer',
-                                                    transition: 'all 0.2s'
+                                                    strokeDasharray: `${2 * Math.PI * 36}`,
+                                                    strokeDashoffset: `${2 * Math.PI * 36 * (1 - (uploadProgress || 0) / 100)}`,
+                                                    transition: 'stroke-dashoffset 0.2s ease-out'
                                                 }}
-                                                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0, 240, 255, 0.25)'}
-                                                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(0, 240, 255, 0.15)'}
-                                            >
-                                                <QrCode size={18} />
-                                            </button>
-                                            <button className="copy-btn" onClick={() => copyToClipboard(result.url)}
-                                                style={{
-                                                    background: 'rgba(0, 240, 255, 0.15)',
-                                                    border: 'none',
-                                                    color: '#00F0FF',
-                                                    padding: '10px',
-                                                    borderRadius: '14px',
-                                                    cursor: 'pointer',
-                                                    transition: 'all 0.2s'
-                                                }}
-                                                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0, 240, 255, 0.25)'}
-                                                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(0, 240, 255, 0.15)'}
-                                            >
-                                                {copied ? <Check size={18} /> : <Copy size={18} />}
-                                            </button>
-                                        </div>
+                                            />
+                                        </svg>
                                     </div>
+                                ) : (
+                                    <div className="icon-pulse" style={{
+                                        color: 'var(--accent-cyan)',
+                                        filter: 'drop-shadow(0 0 8px #00F0FF) drop-shadow(0 0 16px rgba(0, 240, 255, 0.5))'
+                                    }}>
+                                        <Upload size={32} />
+                                    </div>
+                                )}
+                            </div>
+                            <div className="drop-zone-text" style={{ textAlign: 'center' }}>
+                                <h3 style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, color: 'var(--text-main)' }}>{uploading ? 'Uploading to Edge...' : 'Drop image or video here'}</h3>
+                                <p style={{
+                                    color: 'var(--text-muted)',
+                                    opacity: 0.6,
+                                    fontSize: '0.8rem',
+                                    fontFamily: 'JetBrains Mono, monospace',
+                                    letterSpacing: '0.05em'
+                                }}>{uploading ? 'Processing through global node cluster' : 'or click to browse your files'}</p>
+                            </div>
+                        </div>
+                    </div>
 
-                                    {showQr && (
-                                        <motion.div
-                                            initial={{ opacity: 0, scale: 0.9 }}
-                                            animate={{ opacity: 1, scale: 1 }}
+                    <AnimatePresence>
+                        {result && (
+                            <motion.div
+                                className="result-area"
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                            >
+                                <div className="link-box" style={{
+                                    background: 'var(--input-bg)',
+                                    border: '1px solid var(--border-color)',
+                                    borderRadius: '16px',
+                                    padding: '12px 16px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    gap: '12px'
+                                }}>
+                                    <span className="link-text" style={{
+                                        fontFamily: 'JetBrains Mono, monospace',
+                                        fontSize: '0.85rem',
+                                        color: 'var(--accent-cyan)',
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis'
+                                    }}>{result.url}</span>
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                        <button
+                                            className="copy-btn"
+                                            onClick={() => setShowQr(!showQr)}
                                             style={{
-                                                marginTop: '1.5rem',
-                                                display: 'flex',
-                                                justifyContent: 'center',
-                                                background: 'white',
-                                                padding: '1.5rem',
-                                                borderRadius: '24px',
-                                                boxShadow: '0 20px 40px rgba(0,0,0,0.5)'
+                                                background: 'rgba(0, 240, 255, 0.15)',
+                                                border: 'none',
+                                                color: '#00F0FF',
+                                                padding: '10px',
+                                                borderRadius: '14px',
+                                                cursor: 'pointer',
+                                                transition: 'all 0.2s'
                                             }}
+                                            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0, 240, 255, 0.25)'}
+                                            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(0, 240, 255, 0.15)'}
                                         >
-                                            <QRCodeSVG value={result.url} size={180} />
-                                        </motion.div>
-                                    )}
+                                            <QrCode size={18} />
+                                        </button>
+                                        <button className="copy-btn" onClick={() => copyToClipboard(result.url)}
+                                            style={{
+                                                background: 'rgba(0, 240, 255, 0.15)',
+                                                border: 'none',
+                                                color: '#00F0FF',
+                                                padding: '10px',
+                                                borderRadius: '14px',
+                                                cursor: 'pointer',
+                                                transition: 'all 0.2s'
+                                            }}
+                                            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0, 240, 255, 0.25)'}
+                                            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(0, 240, 255, 0.15)'}
+                                        >
+                                            {copied ? <Check size={18} /> : <Copy size={18} />}
+                                        </button>
+                                    </div>
+                                </div>
 
-                                    <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-                                        <a href={result.url} target="_blank" rel="noopener noreferrer" style={{
-                                            color: '#00F0FF',
-                                            fontSize: '0.8rem',
-                                            textDecoration: 'none',
+                                {showQr && (
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.9 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        style={{
+                                            marginTop: '1.5rem',
                                             display: 'flex',
-                                            alignItems: 'center',
                                             justifyContent: 'center',
-                                            gap: '4px',
-                                            fontFamily: 'JetBrains Mono, monospace',
-                                            textShadow: '0 0 10px rgba(0, 240, 255, 0.5)',
-                                            transition: 'all 0.3s'
+                                            background: 'white',
+                                            padding: '1.5rem',
+                                            borderRadius: '24px',
+                                            boxShadow: '0 20px 40px rgba(0,0,0,0.5)'
                                         }}
-                                            onMouseEnter={(e) => {
-                                                e.currentTarget.style.textShadow = '0 0 20px rgba(0, 240, 255, 0.8)';
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                e.currentTarget.style.textShadow = '0 0 10px rgba(0, 240, 255, 0.5)';
-                                            }}
-                                        >
-                                            View Live Link <ExternalLink size={12} />
-                                        </a>
+                                    >
+                                        <QRCodeSVG value={result.url} size={180} />
+                                    </motion.div>
+                                )}
+
+                                <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+                                    <a href={result.url} target="_blank" rel="noopener noreferrer" style={{
+                                        color: '#00F0FF',
+                                        fontSize: '0.8rem',
+                                        textDecoration: 'none',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '4px',
+                                        fontFamily: 'JetBrains Mono, monospace',
+                                        textShadow: '0 0 10px rgba(0, 240, 255, 0.5)',
+                                        transition: 'all 0.3s'
+                                    }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.textShadow = '0 0 20px rgba(0, 240, 255, 0.8)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.textShadow = '0 0 10px rgba(0, 240, 255, 0.5)';
+                                        }}
+                                    >
+                                        View Live Link <ExternalLink size={12} />
+                                    </a>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </motion.div>
+
+                {/* Telegram Bot CTA */}
+                {isTelegram && (
+                    <motion.a
+                        href="https://t.me/voltedgebot"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        initial={{ opacity: 0, y: 10 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        style={{
+                            marginTop: '2.5rem',
+                            textDecoration: 'none',
+                            width: '100%',
+                            maxWidth: '500px'
+                        }}
+                    >
+                        <div style={{
+                            background: 'rgba(59, 130, 246, 0.05)',
+                            border: '1px solid rgba(59, 130, 246, 0.2)',
+                            padding: '16px 20px',
+                            borderRadius: '24px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            gap: '15px',
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            backdropFilter: 'blur(10px)'
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                <div style={{
+                                    width: '44px',
+                                    height: '44px',
+                                    background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                                    borderRadius: '14px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    color: 'white'
+                                }}>
+                                    <MessageSquare size={20} fill="white" />
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <span style={{ color: 'var(--text-main)', fontWeight: '600', fontSize: '1rem' }}>Prefer Telegram?</span>
+                                    <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Use our bot for instant uploads</span>
+                                </div>
+                            </div>
+                            <ArrowRight size={18} color="var(--text-muted)" />
+                        </div>
+                    </motion.a>
+                )}
+
+                {/* Recently Uploaded */}
+                {history.length > 0 && (
+                    <div style={{ marginTop: '2rem', width: '100%', maxWidth: '500px' }}>
+                        <button
+                            onClick={() => setIsHistoryOpen(!isHistoryOpen)}
+                            style={{
+                                width: '100%',
+                                background: 'var(--input-bg)',
+                                border: '1px solid var(--border-color)',
+                                padding: '14px',
+                                borderRadius: '100px',
+                                color: 'var(--text-main)',
+                                fontSize: '0.85rem',
+                                fontWeight: '500',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '10px',
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            <History size={16} />
+                            {isHistoryOpen ? 'Hide History' : 'View Upload History'}
+                        </button>
+
+                        <AnimatePresence>
+                            {isHistoryOpen && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                    style={{ overflow: 'hidden', padding: '1.5rem 0 0' }}
+                                >
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                        {history.map((item) => (
+                                            <div key={item.id} style={{
+                                                background: 'var(--history-item-bg)',
+                                                padding: '10px 14px',
+                                                borderRadius: '22px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                                border: '1px solid var(--border-color)',
+                                                transition: 'all 0.2s'
+                                            }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: 1, overflow: 'hidden' }}>
+                                                    <div style={{
+                                                        width: '48px',
+                                                        height: '48px',
+                                                        borderRadius: '14px',
+                                                        overflow: 'hidden',
+                                                        background: 'rgba(139, 92, 246, 0.1)',
+                                                        flexShrink: 0
+                                                    }}>
+                                                        <img
+                                                            src={`/i/${item.id}.jpg`}
+                                                            alt="preview"
+                                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                                        />
+                                                    </div>
+                                                    <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                                                        <a href={`/i/${item.id}`} target="_blank" style={{ color: 'var(--text-main)', textDecoration: 'none', fontSize: '0.9rem', fontWeight: '500', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                            /i/{item.id}
+                                                        </a>
+                                                        <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                                                            {new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    onClick={() => copyToClipboard(item.url)}
+                                                    style={{ background: 'rgba(139, 92, 246, 0.15)', border: 'none', color: '#8b5cf6', padding: '10px', borderRadius: '14px', cursor: 'pointer', transition: 'all 0.2s' }}
+                                                    onMouseOver={(e: any) => e.currentTarget.style.background = 'rgba(139, 92, 246, 0.25)'}
+                                                    onMouseOut={(e: any) => e.currentTarget.style.background = 'rgba(139, 92, 246, 0.15)'}
+                                                >
+                                                    <Copy size={18} />
+                                                </button>
+                                            </div>
+                                        ))}
                                     </div>
                                 </motion.div>
                             )}
                         </AnimatePresence>
-                    </motion.div>
-
-                    {/* Telegram Bot CTA */}
-                    {isTelegram && (
-                        <motion.a
-                            href="https://t.me/voltedgebot"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            initial={{ opacity: 0, y: 10 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            style={{
-                                marginTop: '2.5rem',
-                                textDecoration: 'none',
-                                width: '100%',
-                                maxWidth: '500px'
-                            }}
-                        >
-                            <div style={{
-                                background: 'rgba(59, 130, 246, 0.05)',
-                                border: '1px solid rgba(59, 130, 246, 0.2)',
-                                padding: '16px 20px',
-                                borderRadius: '24px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                gap: '15px',
-                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                backdropFilter: 'blur(10px)'
-                            }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                    <div style={{
-                                        width: '44px',
-                                        height: '44px',
-                                        background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                                        borderRadius: '14px',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        color: 'white'
-                                    }}>
-                                        <MessageSquare size={20} fill="white" />
-                                    </div>
-                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                        <span style={{ color: 'var(--text-main)', fontWeight: '600', fontSize: '1rem' }}>Prefer Telegram?</span>
-                                        <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Use our bot for instant uploads</span>
-                                    </div>
-                                </div>
-                                <ArrowRight size={18} color="var(--text-muted)" />
-                            </div>
-                        </motion.a>
-                    )}
-
-                    {/* Recently Uploaded */}
-                    {history.length > 0 && (
-                        <div style={{ marginTop: '2rem', width: '100%', maxWidth: '500px' }}>
-                            <button
-                                onClick={() => setIsHistoryOpen(!isHistoryOpen)}
-                                style={{
-                                    width: '100%',
-                                    background: 'var(--input-bg)',
-                                    border: '1px solid var(--border-color)',
-                                    padding: '14px',
-                                    borderRadius: '100px',
-                                    color: 'var(--text-main)',
-                                    fontSize: '0.85rem',
-                                    fontWeight: '500',
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: '10px',
-                                    transition: 'all 0.2s'
-                                }}
-                            >
-                                <History size={16} />
-                                {isHistoryOpen ? 'Hide History' : 'View Upload History'}
-                            </button>
-
-                            <AnimatePresence>
-                                {isHistoryOpen && (
-                                    <motion.div
-                                        initial={{ opacity: 0, y: -10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -10 }}
-                                        style={{ overflow: 'hidden', padding: '1.5rem 0 0' }}
-                                    >
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                            {history.map((item) => (
-                                                <div key={item.id} style={{
-                                                    background: 'var(--history-item-bg)',
-                                                    padding: '10px 14px',
-                                                    borderRadius: '22px',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'space-between',
-                                                    border: '1px solid var(--border-color)',
-                                                    transition: 'all 0.2s'
-                                                }}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: 1, overflow: 'hidden' }}>
-                                                        <div style={{
-                                                            width: '48px',
-                                                            height: '48px',
-                                                            borderRadius: '14px',
-                                                            overflow: 'hidden',
-                                                            background: 'rgba(139, 92, 246, 0.1)',
-                                                            flexShrink: 0
-                                                        }}>
-                                                            <img
-                                                                src={`/i/${item.id}.jpg`}
-                                                                alt="preview"
-                                                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                                            />
-                                                        </div>
-                                                        <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                                                            <a href={`/i/${item.id}`} target="_blank" style={{ color: 'var(--text-main)', textDecoration: 'none', fontSize: '0.9rem', fontWeight: '500', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                                                /i/{item.id}
-                                                            </a>
-                                                            <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
-                                                                {new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                    <button
-                                                        onClick={() => copyToClipboard(item.url)}
-                                                        style={{ background: 'rgba(139, 92, 246, 0.15)', border: 'none', color: '#8b5cf6', padding: '10px', borderRadius: '14px', cursor: 'pointer', transition: 'all 0.2s' }}
-                                                        onMouseOver={(e: any) => e.currentTarget.style.background = 'rgba(139, 92, 246, 0.25)'}
-                                                        onMouseOut={(e: any) => e.currentTarget.style.background = 'rgba(139, 92, 246, 0.15)'}
-                                                    >
-                                                        <Copy size={18} />
-                                                    </button>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </div>
-                    )}
-                </div>
+                    </div>
+                )}
 
                 <div className="features-grid">
                     <motion.div className="feature-card" initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}>
@@ -929,7 +926,7 @@ export default function Home() {
                         </motion.div>
                     )}
                 </AnimatePresence>
-            </main>
+            </main >
         </>
     );
 }
