@@ -7,7 +7,7 @@ import { authenticateRequest } from '@/lib/auth';
 export async function POST(req: NextRequest) {
     // Authenticate request (optional - supports both API key and JWT)
     const auth = await authenticateRequest(req);
-    
+
     // Determine rate limit based on authentication
     const ip = req.headers.get('x-forwarded-for') || 'anonymous';
     let rateLimitKey: string;

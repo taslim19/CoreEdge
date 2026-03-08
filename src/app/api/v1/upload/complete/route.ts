@@ -62,21 +62,21 @@ export async function POST(req: NextRequest) {
         const TELEGRAM_PHOTO_LIMIT = 10 * 1024 * 1024; // 10MB
         const TELEGRAM_VIDEO_LIMIT = 50 * 1024 * 1024; // 50MB
         const TELEGRAM_ANIMATION_LIMIT = 50 * 1024 * 1024; // 50MB
-        
+
         let mediaType: 'photo' | 'animation' | 'video' = 'photo';
         if (contentType.startsWith('video/')) mediaType = 'video';
         if (contentType === 'image/gif') mediaType = 'animation';
-        
+
         const getTelegramLimit = () => {
             if (mediaType === 'photo') return TELEGRAM_PHOTO_LIMIT;
             if (mediaType === 'video') return TELEGRAM_VIDEO_LIMIT;
             if (mediaType === 'animation') return TELEGRAM_ANIMATION_LIMIT;
             return TELEGRAM_VIDEO_LIMIT; // Default
         };
-        
+
         const telegramLimit = getTelegramLimit();
         const isFileTooLarge = fileSize > telegramLimit;
-        
+
         const forwardToTelegram = async () => {
             try {
                 if (isFileTooLarge) {
@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
                     const result = await downloadFromR2(objectKey);
                     const fileBlob = result.blob;
                     console.log(`[Telegram Forward] Downloaded from R2, size: ${(fileBlob.size / 1024 / 1024).toFixed(2)} MB`);
-                    
+
                     console.log(`[Telegram Forward] Uploading to Telegram as ${mediaType}...`);
                     await uploadToTelegram(
                         fileBlob,
@@ -126,11 +126,11 @@ export async function POST(req: NextRequest) {
                 await sendLog(`⚠️ <b>R2 Upload Complete</b> (Telegram forward failed)\n\nID: ${id}\nType: ${contentType}\nSize: ${(fileSize / 1024 / 1024).toFixed(2)} MB\nError: ${telegramError.message || String(telegramError)}\nLink: ${publicUrl}`);
             }
         };
-        
+
         // For files <50MB, wait for Telegram notification/upload to complete
         // For larger files, do it async (don't block response)
         const shouldWaitForTelegram = fileSize < 50 * 1024 * 1024;
-        
+
         if (shouldWaitForTelegram) {
             await forwardToTelegram();
         } else {
