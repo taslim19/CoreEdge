@@ -890,7 +890,6 @@ export default function Home() {
                 <footer className="footer">
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', marginBottom: '1rem' }}>
                         <Link href="/docs" style={{ color: 'var(--text-muted)' }}>API</Link>
-                        <a href="https://github.com/taslim19/CoreEdge" style={{ color: 'var(--text-muted)' }}>GitHub</a>
                         <a href="https://t.me/Hunter_Update" style={{ color: 'var(--text-muted)' }}>Channel</a>
                         <a href="https://t.me/Hunter_Supports" style={{ color: 'var(--text-muted)' }}>Support</a>
                     </div>

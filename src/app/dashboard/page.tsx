@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
     Key, Plus, Trash2, Copy, Check, LogOut, User,
-    Settings, Webhook, Eye, EyeOff, X, AlertCircle, Github
+    Settings, Webhook, Eye, EyeOff, X, AlertCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -1298,6 +1298,13 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
         setTimeout(() => setShowToast(false), 3000);
     };
 
+    // Telegram Icon SVG Component
+    const TelegramIcon = () => (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM16.64 8.8C16.49 10.38 15.84 14.19 15.51 15.96C15.37 16.71 15.09 16.96 14.83 16.99C14.25 17.04 13.81 16.61 13.25 16.24C12.37 15.66 11.87 15.3 11.02 14.74C10.03 14.09 10.67 13.73 11.23 13.15C11.38 13 13.92 10.69 13.97 10.48C13.98 10.45 13.98 10.35 13.92 10.3C13.86 10.25 13.78 10.27 13.72 10.28C13.63 10.3 12.33 11.16 9.81 12.86C9.44 13.11 9.11 13.23 8.81 13.23C8.48 13.22 7.84 13.04 7.37 12.89C6.79 12.7 6.32 12.6 6.36 12.28C6.38 12.11 6.61 11.94 7.06 11.75C9.84 10.54 11.7 9.74 12.64 9.35C15.31 8.24 15.87 8.05 16.23 8.05C16.31 8.05 16.49 8.07 16.61 8.17C16.71 8.25 16.74 8.36 16.75 8.44C16.76 8.52 16.7 8.71 16.64 8.8Z" fill="#24A1DE" />
+        </svg>
+    );
+
     // Google Icon SVG Component
     const GoogleIcon = () => (
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1534,7 +1541,7 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
                 <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                     <button
                         type="button"
-                        onClick={() => handleSocialLogin('github')}
+                        onClick={() => handleSocialLogin('telegram')}
                         style={{
                             padding: '0.875rem',
                             borderRadius: '12px',
@@ -1560,8 +1567,8 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
                             e.currentTarget.style.background = '#000000';
                         }}
                     >
-                        <Github size={18} />
-                        Continue with GitHub
+                        <TelegramIcon />
+                        Continue with Telegram
                     </button>
                     <button
                         type="button"
