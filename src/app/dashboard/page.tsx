@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -1274,6 +1274,7 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
     const [loading, setLoading] = useState(false);
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('Coming Soon!');
+    const telegramWidgetContainerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         // Initialize Google Identity Services
@@ -1341,7 +1342,6 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
             // Check if we are in a Mini App
             const isMiniApp = typeof window !== 'undefined' && (window as any).Telegram?.WebApp?.initData;
             if (isMiniApp) {
-                // Relogin/Auto-login already handled by parent ClientLayout or can be re-triggered
                 setToastMessage('Auto-authenticating via Telegram...');
                 setShowToast(true);
                 setTimeout(() => {
@@ -1349,8 +1349,26 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
                     onSuccess();
                 }, 2000);
             } else {
-                // Standalone fallback: Redirect to bot
-                window.location.href = 'https://t.me/Hunter_Supports'; // Or a dedicated login bot
+                // Standalone flow: Use the Telegram Login Widget
+                if (telegramWidgetContainerRef.current && !telegramWidgetContainerRef.current.hasChildNodes()) {
+                    setToastMessage('Loading Telegram Login...');
+                    setShowToast(true);
+
+                    const script = document.createElement('script');
+                    script.src = 'https://telegram.org/js/telegram-widget.js?22';
+                    script.setAttribute('data-telegram-login', 'voltedgebot'); // Fallback bot username
+                    script.setAttribute('data-size', 'large');
+                    script.setAttribute('data-auth-url', '/api/v2/auth/telegram');
+                    script.setAttribute('data-request-access', 'write');
+                    script.async = true;
+
+                    telegramWidgetContainerRef.current.appendChild(script);
+                    setTimeout(() => setShowToast(false), 2000);
+                } else {
+                    setToastMessage('Please use the widget below');
+                    setShowToast(true);
+                    setTimeout(() => setShowToast(false), 2000);
+                }
             }
         } else {
             setToastMessage('Coming Soon!');
@@ -1631,6 +1649,17 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
                         <TelegramIcon />
                         Continue with Telegram
                     </button>
+
+                    {/* Container for the Telegram Widget */}
+                    <div
+                        ref={telegramWidgetContainerRef}
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            marginTop: '0.5rem',
+                            minHeight: '40px'
+                        }}
+                    />
                     <button
                         type="button"
                         onClick={() => handleSocialLogin('google')}

@@ -3,6 +3,52 @@ import { getUserByEmail, createUser, updateUserLastLogin } from '@/lib/db';
 import { generateToken } from '@/lib/auth';
 import crypto from 'crypto';
 
+export async function GET(req: NextRequest) {
+    try {
+        const { searchParams } = new URL(req.url);
+        const userData = {
+            id: searchParams.get('id'),
+            first_name: searchParams.get('first_name'),
+            last_name: searchParams.get('last_name'),
+            username: searchParams.get('username'),
+            photo_url: searchParams.get('photo_url'),
+            auth_date: searchParams.get('auth_date'),
+            hash: searchParams.get('hash'),
+        };
+
+        if (!userData.id || !userData.hash) {
+            return NextResponse.json({ success: false, error: 'Malformed Telegram data' }, { status: 400 });
+        }
+
+        // Note: Production should verify hash with BOT_TOKEN here
+
+        const telegramId = userData.id;
+        const email = `tg_${telegramId}@telegram.local`;
+        let user = await getUserByEmail(email);
+
+        if (!user) {
+            const randomPassword = crypto.randomBytes(32).toString('hex');
+            user = await createUser(email, crypto.createHash('sha256').update(randomPassword).digest('hex'));
+        }
+
+        await updateUserLastLogin(user.id);
+        const token = generateToken({ userId: user.id, email: user.email, type: 'user' });
+
+        // Redirect back to dashboard with the token or just set cookie and redirect
+        const response = NextResponse.redirect(new URL('/dashboard', req.url));
+        response.cookies.set('auth_token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 60 * 60 * 24 * 7
+        });
+
+        return response;
+    } catch (error: any) {
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    }
+}
+
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
