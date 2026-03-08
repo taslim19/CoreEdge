@@ -281,20 +281,22 @@ export default function Home() {
                 className="main-nav"
                 style={{
                     position: 'fixed',
-                    top: '1.5rem',
+                    top: '2rem',
                     left: '50%',
                     transform: 'translateX(-50%)',
-                    background: 'var(--panel-bg)',
-                    backdropFilter: 'blur(20px)',
-                    WebkitBackdropFilter: 'blur(20px)',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '100px',
-                    padding: '10px 24px',
+                    width: '95vw',
+                    maxWidth: '1200px',
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    backdropFilter: 'blur(40px)',
+                    WebkitBackdropFilter: 'blur(40px)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '24px',
+                    padding: '12px 32px',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '24px',
+                    justifyContent: 'space-between',
                     zIndex: 9999,
-                    boxShadow: '0 10px 30px -10px rgba(0, 0, 0, 0.5)',
+                    boxShadow: '0 25px 50px rgba(0,0,0,0.8)',
                     whiteSpace: 'nowrap'
                 }}
             >
