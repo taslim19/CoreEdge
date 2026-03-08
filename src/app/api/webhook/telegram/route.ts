@@ -40,9 +40,9 @@ export async function POST(req: NextRequest) {
                 }
 
                 await sendMessage(chatId,
-                    `<tg-emoji id="5404363662158738040">✨</tg-emoji> <b>VoltEdge Bot Help</b>\n\n` +
+                    `✨ <b>VoltEdge Bot Help</b>\n\n` +
                     `I can host your media at lightning speed using our edge infrastructure.\n\n` +
-                    `<tg-emoji id="5283080528818360566">🚀</tg-emoji> <b>How to Upload:</b>\n` +
+                    `🚀 <b>How to Upload:</b>\n` +
                     `• Send a <b>Photo/Video/GIF</b> directly to me.\n` +
                     `• Send an <b>Image/Video/GIF</b> as a <b>Document</b>.\n` +
                     `• Or <b>Reply</b> to an existing Media with /upload or /tgm.\n\n` +
@@ -63,13 +63,13 @@ export async function POST(req: NextRequest) {
             if (command === '/stats') {
                 const stats = await getStats();
                 await sendMessage(chatId,
-                    `<tg-emoji id="6039459454016032137">📊</tg-emoji> <b>VoltEdge Statistics</b>\n\n` +
-                    `<tg-emoji id="5453957997418004470">👥</tg-emoji> <b>Total Users:</b> ${stats.totalUsers}\n` +
+                    `📊 <b>VoltEdge Statistics</b>\n\n` +
+                    `👥 <b>Total Users:</b> ${stats.totalUsers}\n` +
                     `🖼️ <b>Images:</b> ${stats.totalImages}\n` +
-                    `<tg-emoji id="5375464961822695044">🎬</tg-emoji> <b>Videos/GIFs:</b> ${stats.totalVideos}\n` +
-                    `<tg-emoji id="5926853662147088272">🤖</tg-emoji> <b>Bot Uploads:</b> ${stats.botUploads}\n` +
-                    `<tg-emoji id="5447410659077661506">🌐</tg-emoji> <b>Web Uploads:</b> ${stats.webUploads}\n` +
-                    `<tg-emoji id="5429159556330566179">📶</tg-emoji> <b>Ping:</b> ${stats.ping}ms`,
+                    `🎬 <b>Videos/GIFs:</b> ${stats.totalVideos}\n` +
+                    `🤖 <b>Bot Uploads:</b> ${stats.botUploads}\n` +
+                    `🌐 <b>Web Uploads:</b> ${stats.webUploads}\n` +
+                    `📶 <b>Ping:</b> ${stats.ping}ms`,
                     'HTML'
                 );
                 return new NextResponse('OK');
@@ -93,9 +93,9 @@ export async function POST(req: NextRequest) {
                 uptimeStr += `${seconds}s`;
 
                 await sendMessage(chatId,
-                    `<tg-emoji id="5269563867305879894">🏓</tg-emoji> <b>Pong!</b>\n\n` +
-                    `<tg-emoji id="5429159556330566179">📶</tg-emoji> <b>Latency:</b> <code>${latency}ms</code>\n` +
-                    `<tg-emoji id="5364105043907716258">🆙</tg-emoji> <b>Uptime:</b> <code>${uptimeStr}</code>`,
+                    `🏓 <b>Pong!</b>\n\n` +
+                    `📶 <b>Latency:</b> <code>${latency}ms</code>\n` +
+                    `🆙 <b>Uptime:</b> <code>${uptimeStr}</code>`,
                     'HTML'
                 );
                 return new NextResponse('OK');
