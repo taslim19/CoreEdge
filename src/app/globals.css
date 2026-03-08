@@ -204,21 +204,20 @@ body::after {
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
-  padding: 0 2rem;
+  padding: 0;
   z-index: 10;
   position: relative;
   width: 100%;
+  overflow-x: hidden;
 }
 
 .hero-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
   min-height: 100vh;
   width: 100%;
-  padding: 2rem 0;
-  /* Reduced from 6rem to avoid displacement */
+  padding: 8rem 1rem 4rem;
+  margin: 0 auto;
 }
 
 /* Mobile Responsive Styles */
@@ -275,7 +274,11 @@ body::after {
   }
 
   .main-container {
-    padding: 0 1rem;
+    padding: 0;
+  }
+
+  .hero-section {
+    padding-top: 6rem;
   }
 
   .hero h1 {
@@ -367,7 +370,11 @@ body::after {
   }
 
   .main-container {
-    padding: 4.5rem 0.75rem 2rem;
+    padding: 0;
+  }
+
+  .hero-section {
+    padding-top: 5.5rem;
   }
 
   .hero h1 {
@@ -415,7 +422,8 @@ body::after {
 .hero {
   text-align: center;
   max-width: 800px;
-  margin-bottom: 2.5rem;
+  margin: 0 auto 2.5rem;
+  width: 100%;
 }
 
 .hero h1 {
@@ -499,6 +507,7 @@ body::after {
     0 25px 50px -12px var(--card-shadow);
   transition: all 0.3s ease;
   position: relative;
+  margin: 0 auto;
 }
 
 @media (max-width: 768px) {
