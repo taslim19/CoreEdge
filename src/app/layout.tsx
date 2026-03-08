@@ -19,6 +19,7 @@ export default function RootLayout({
         <html lang="en">
             <body>
                 <Script src="https://telegram.org/js/telegram-web-app.js" strategy="beforeInteractive" />
+                <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />
                 <ClientLayout>
                     {children}
                 </ClientLayout>

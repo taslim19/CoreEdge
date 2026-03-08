@@ -16,6 +16,7 @@
     "@vercel/kv": "^3.0.0",
     "bcryptjs": "^2.4.3",
     "framer-motion": "latest",
+    "google-auth-library": "^9.0.0",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.562.0",
     "next": "latest",

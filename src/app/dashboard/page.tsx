@@ -8,6 +8,14 @@ import {
     Settings, Webhook, Eye, EyeOff, X, AlertCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Script from 'next/script';
+
+declare global {
+    interface Window {
+        google: any;
+        handleGoogleResponse: (response: any) => void;
+    }
+}
 
 interface User {
     id: string;
@@ -1265,6 +1273,31 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState('Coming Soon!');
+
+    useEffect(() => {
+        // Initialize Google Identity Services
+        window.handleGoogleResponse = async (response: any) => {
+            setLoading(true);
+            try {
+                const res = await fetch('/api/v2/auth/google', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ credential: response.credential })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    onSuccess();
+                } else {
+                    setError(data.error?.message || 'Google Auth Failed');
+                }
+            } catch (err) {
+                setError('Google Auth Error');
+            } finally {
+                setLoading(false);
+            }
+        };
+    }, [onSuccess]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -1294,8 +1327,36 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
     };
 
     const handleSocialLogin = (provider: string) => {
-        setShowToast(true);
-        setTimeout(() => setShowToast(false), 3000);
+        if (provider === 'google') {
+            if (window.google) {
+                window.google.accounts.id.initialize({
+                    client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '',
+                    callback: window.handleGoogleResponse
+                });
+                window.google.accounts.id.prompt();
+            } else {
+                setError('Google Script not loaded');
+            }
+        } else if (provider === 'telegram') {
+            // Check if we are in a Mini App
+            const isMiniApp = typeof window !== 'undefined' && (window as any).Telegram?.WebApp?.initData;
+            if (isMiniApp) {
+                // Relogin/Auto-login already handled by parent ClientLayout or can be re-triggered
+                setToastMessage('Auto-authenticating via Telegram...');
+                setShowToast(true);
+                setTimeout(() => {
+                    setShowToast(false);
+                    onSuccess();
+                }, 2000);
+            } else {
+                // Standalone fallback: Redirect to bot
+                window.location.href = 'https://t.me/Hunter_Supports'; // Or a dedicated login bot
+            }
+        } else {
+            setToastMessage('Coming Soon!');
+            setShowToast(true);
+            setTimeout(() => setShowToast(false), 3000);
+        }
     };
 
     // Telegram Icon SVG Component
@@ -1395,7 +1456,7 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
                             backdropFilter: 'blur(20px)'
                         }}
                     >
-                        Coming Soon!
+                        {toastMessage}
                     </motion.div>
                 )}
             </AnimatePresence>
