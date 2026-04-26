@@ -1,3 +1,5 @@
 /.env.local
 /db.json
 /node_modules
+/.next/
+/.local/
